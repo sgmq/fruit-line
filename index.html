@@ -1,0 +1,1587 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>フルーツライン</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+    </style>
+    <style>
+      :root {
+        --bg: #eef6e9;
+        --bg-accent: #dcefd2;
+        --panel: #ffffff;
+        --panel-border: #cfe3c2;
+        --ink: #22331c;
+        --ink-soft: #5c7052;
+        --board-bg: #fdfdf8;
+        --cell: #f2f7ec;
+        --cell-alt: #e7f1dc;
+        --cell-border: #d5e4c6;
+        --cell-hover: #dcecc9;
+        --cell-target: #fff3bf;
+        --accent: #3d8b2e;
+        --accent-strong: #2f7023;
+        --accent-ink: #ffffff;
+        --gold: #e9a13b;
+        --danger: #d64545;
+        --shadow: 0 10px 30px rgba(46, 84, 32, .14);
+        --shadow-sm: 0 2px 8px rgba(46, 84, 32, .10);
+        --radius: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131a10;
+          --bg-accent: #1a2615;
+          --panel: #1e2a1a;
+          --panel-border: #33482a;
+          --ink: #e6f0dd;
+          --ink-soft: #a4b898;
+          --board-bg: #232f1e;
+          --cell: #2a3a23;
+          --cell-alt: #31452a;
+          --cell-border: #3c5531;
+          --cell-hover: #3d5a33;
+          --cell-target: #5a4d1e;
+          --accent: #6fbf57;
+          --accent-strong: #8ad173;
+          --accent-ink: #14230f;
+          --gold: #eeb254;
+          --danger: #ef7d7d;
+          --shadow: 0 10px 30px rgba(0, 0, 0, .45);
+          --shadow-sm: 0 2px 8px rgba(0, 0, 0, .35);
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background:
+          radial-gradient(600px 300px at 15% -60px, var(--bg-accent), transparent 70%),
+          radial-gradient(700px 340px at 90% -80px, var(--bg-accent), transparent 70%),
+          var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+      }
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 10px 6px 28px;
+      }
+      h1 {
+        font-size: 1.55rem;
+        font-weight: 800;
+        margin: 2px 0 2px;
+        letter-spacing: .02em;
+      }
+      .tagline {
+        margin: 0 0 8px;
+        color: var(--ink-soft);
+        font-size: .92rem;
+        font-weight: 500;
+      }
+      /* ---------- status bar ---------- */
+      .status {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: stretch;
+        margin-bottom: 8px;
+      }
+      .stat {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        padding: 7px 14px 8px;
+        min-width: 96px;
+        box-shadow: var(--shadow);
+      }
+      .stat .label {
+        font-size: .68rem;
+        font-weight: 700;
+        color: var(--ink-soft);
+        letter-spacing: .08em;
+      }
+      .stat .value {
+        font-size: 1.35rem;
+        font-weight: 800;
+        line-height: 1.15;
+        font-variant-numeric: tabular-nums;
+      }
+      .next-box {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        padding: 7px 14px 8px;
+        box-shadow: var(--shadow);
+        margin-left: auto;
+      }
+      .next-box .label {
+        font-size: .68rem;
+        font-weight: 700;
+        color: var(--ink-soft);
+        letter-spacing: .08em;
+      }
+      .next-fruits { display: flex; gap: 6px; margin-top: 2px; }
+      .next-fruits .nf {
+        width: 30px; height: 30px;
+        display: grid; place-items: center;
+      }
+      .next-fruits svg { width: 28px; height: 28px; }
+      /* ---------- controls ---------- */
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+        align-items: center;
+      }
+      .btn {
+        font: inherit;
+        font-weight: 700;
+        font-size: .92rem;
+        border-radius: 999px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        color: var(--ink);
+        padding: 8px 18px;
+        min-height: 40px;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+        transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease;
+      }
+      .btn:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+      .btn:active { transform: translateY(1px); }
+      .btn.primary {
+        background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 78%, #ffffff), var(--accent));
+        border-color: var(--accent);
+        color: var(--accent-ink);
+      }
+      .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+      .btn.danger { color: var(--danger); border-color: var(--danger); }
+      .btn.danger:hover { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, var(--panel)); }
+      .btn.danger-solid { background: var(--danger); border-color: var(--danger); color: #ffffff; }
+      .btn.danger-solid:hover { background: var(--danger); border-color: var(--danger); filter: brightness(1.07); }
+      .btn.icon { padding: 8px 13px; }
+      .btn.attention {
+        background: var(--gold);
+        border-color: var(--gold);
+        color: #3a2a08;
+      }
+      .seg {
+        display: inline-flex;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 999px;
+        padding: 3px;
+        box-shadow: var(--shadow);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .seg .seg-label {
+        font-size: .78rem; font-weight: 700; color: var(--ink-soft);
+        padding: 0 6px 0 10px;
+      }
+      .seg button {
+        font: inherit; font-size: .85rem; font-weight: 700;
+        border: 0; background: transparent; color: var(--ink-soft);
+        border-radius: 999px; padding: 6px 12px; min-height: 36px; cursor: pointer;
+      }
+      .seg button[aria-pressed="true"] {
+        background: var(--accent); color: var(--accent-ink);
+      }
+      /* ---------- views (separate screens) ---------- */
+      .view[hidden] { display: none !important; }
+      .screen-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 2px 0 14px;
+      }
+      .screen-head h1, .screen-head h2.screen-title {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: .02em;
+      }
+      .back-btn {
+        font: inherit;
+        font-weight: 700;
+        font-size: .9rem;
+        border-radius: 999px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        color: var(--ink);
+        padding: 8px 14px;
+        min-height: 40px;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        white-space: nowrap;
+      }
+      .back-btn:active { transform: translateY(1px); }
+      /* ---------- settings screen ---------- */
+      .settings {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px 16px 16px;
+        margin-bottom: 12px;
+      }
+      .settings h2 { font-size: 1.05rem; margin: 0 0 4px; font-weight: 800; }
+      .settings .note { margin: 0 0 10px; font-size: .82rem; color: var(--ink-soft); font-weight: 500; line-height: 1.6; }
+      .set-row {
+        padding: 10px 0;
+        border-top: 1px dashed var(--panel-border);
+      }
+      .set-row:first-of-type { border-top: 0; }
+      .set-row .set-head {
+        display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+        margin-bottom: 6px;
+      }
+      .set-row .set-name { font-weight: 800; font-size: .95rem; }
+      .set-row .set-now {
+        font-size: .78rem; font-weight: 700; color: var(--accent-strong);
+        background: var(--cell-alt);
+        border-radius: 999px; padding: 2px 10px;
+      }
+      .set-row .set-desc { font-size: .82rem; color: var(--ink-soft); font-weight: 500; line-height: 1.55; margin: 0 0 8px; }
+      .set-row .seg { box-shadow: none; }
+      .set-row select {
+        font: inherit; font-weight: 700; font-size: .95rem;
+        color: var(--ink);
+        background: var(--cell);
+        border: 1px solid var(--panel-border);
+        border-radius: 10px;
+        padding: 6px 12px;
+        min-height: 40px;
+        min-width: 120px;
+      }
+      .restart-tag {
+        font-size: .72rem; font-weight: 700; color: #8a5a12;
+        background: #fdf0d3;
+        border-radius: 999px; padding: 2px 9px;
+      }
+      @media (prefers-color-scheme: dark) {
+        .restart-tag { color: #f2cd8a; background: #4a3a14; }
+      }
+      .live-tag {
+        font-size: .72rem; font-weight: 700; color: var(--accent-strong);
+        background: var(--cell-alt);
+        border-radius: 999px; padding: 2px 9px;
+      }
+      .settings .set-actions {
+        display: flex; flex-wrap: wrap; gap: 8px;
+        margin-top: 12px; padding-top: 12px;
+        border-top: 1px solid var(--panel-border);
+      }
+      /* ---------- board ---------- */
+      .board-wrap {
+        position: relative;
+        background: var(--board-bg);
+        border: 1px solid var(--panel-border);
+        border-radius: 20px;
+        padding: 5px;
+        box-shadow: var(--shadow);
+        width: max-content;
+        max-width: 100%;
+        margin: 0 auto;
+        box-sizing: border-box;
+      }
+      .board {
+        --cell-size: min(60px, calc((100vw - 48px) / 9));
+        display: grid;
+        gap: 3px;
+        grid-template-columns: repeat(var(--n, 9), var(--cell-size));
+        grid-template-rows: repeat(var(--n, 9), var(--cell-size));
+        width: max-content;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .board[data-size="7"] { --cell-size: min(78px, calc((100vw - 40px) / 7)); }
+      .cell {
+        width: var(--cell-size);
+        height: var(--cell-size);
+        min-width: var(--cell-size);
+        max-width: var(--cell-size);
+        min-height: var(--cell-size);
+        max-height: var(--cell-size);
+        aspect-ratio: 1 / 1;
+        flex: none;
+        overflow: hidden;
+        border-radius: 22%;
+        background: var(--cell);
+        border: 1px solid var(--cell-border);
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        position: relative;
+        padding: 0;
+        font: inherit;
+      }
+      .cell.alt { background: var(--cell-alt); }
+      .cell:hover { background: var(--cell-hover); }
+      .cell.path-hint { background: var(--cell-target); }
+      .cell .fruit {
+        width: 88%;
+        height: 88%;
+        pointer-events: none;
+        display: block;
+      }
+      .cell.selected {
+        outline: 3px solid var(--gold);
+        outline-offset: -1px;
+        background: var(--cell-target);
+        z-index: 1;
+      }
+      .cell.selected .fruit { animation: bounce .85s ease-in-out infinite alternate; }
+      @keyframes bounce {
+        from { transform: translateY(0) scale(1); }
+        to   { transform: translateY(-13%) scale(1.12); }
+      }
+      .cell.dropping { overflow: visible; z-index: 3; }
+      .fruit.drop { animation: dropIn .4s cubic-bezier(.33, .66, .66, 1) both; }
+      @keyframes dropIn {
+        0% { transform: translateY(-230%) scale(1); opacity: 0; }
+        12% { opacity: 1; }
+        55% { transform: translateY(0) scale(1.1, .86); opacity: 1; }
+        72% { transform: translateY(-15%) scale(.96, 1.05); }
+        86% { transform: translateY(0) scale(1.03, .97); }
+        100% { transform: translateY(0) scale(1); }
+      }
+      .fruit.clearing { animation: clearing .38s ease-in forwards; }
+      @keyframes clearing {
+        0% { transform: scale(1); opacity: 1; }
+        40% { transform: scale(1.3) rotate(8deg); opacity: 1; }
+        100% { transform: scale(0) rotate(30deg); opacity: 0; }
+      }
+      .fruit.traveler {
+        position: absolute;
+        z-index: 5;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 5px rgba(0,0,0,.25));
+      }
+      /* ---------- score breakdown popup ---------- */
+      .score-pop {
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%) scale(.9);
+        background: var(--panel);
+        border: 2px solid var(--gold);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: 10px 18px;
+        text-align: center;
+        font-weight: 800;
+        font-size: .98rem;
+        line-height: 1.5;
+        color: var(--ink);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9;
+        max-width: 92%;
+      }
+      .score-pop .pop-total { color: var(--accent-strong); font-size: 1.12rem; }
+      .score-pop .pop-mult { color: #8a5a12; }
+      @media (prefers-color-scheme: dark) {
+        .score-pop .pop-mult { color: var(--gold); }
+      }
+      .score-pop.show { animation: scorePop 2.3s ease forwards; }
+      @keyframes scorePop {
+        0% { opacity: 0; transform: translateX(-50%) scale(.85) translateY(-6px); }
+        10% { opacity: 1; transform: translateX(-50%) scale(1.04) translateY(0); }
+        16% { transform: translateX(-50%) scale(1); }
+        82% { opacity: 1; }
+        100% { opacity: 0; transform: translateX(-50%) scale(1) translateY(-4px); }
+      }
+      /* ---------- score table (help screen) ---------- */
+      .score-note { color: var(--ink-soft); font-weight: 500; font-size: .92rem; line-height: 1.7; margin: 0 0 10px; }
+      .score-note b { color: var(--ink); }
+      .score-table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 420px;
+        margin: 0 0 10px;
+        font-size: .95rem;
+        font-variant-numeric: tabular-nums;
+      }
+      .score-table th, .score-table td {
+        border: 1px solid var(--panel-border);
+        padding: 6px 12px;
+      }
+      .score-table th { background: var(--cell-alt); font-weight: 800; text-align: left; }
+      .score-table td.num, .score-table th.num { text-align: right; }
+      .score-table td { font-weight: 500; }
+      .score-table td.pts { font-weight: 800; color: var(--accent-strong); }
+      /* ---------- game over overlay ---------- */
+      .overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        background: color-mix(in srgb, var(--board-bg) 82%, transparent);
+        backdrop-filter: blur(2px);
+        display: none;
+        place-items: center;
+        text-align: center;
+        padding: 20px;
+        z-index: 10;
+      }
+      .overlay.show { display: grid; }
+      .overlay .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 18px;
+        padding: 22px 26px;
+        box-shadow: var(--shadow);
+        max-width: 320px;
+      }
+      .overlay h2 { margin: 0 0 6px; font-size: 1.4rem; font-weight: 800; }
+      .overlay p { margin: 0 0 14px; color: var(--ink-soft); font-weight: 500; }
+      .overlay .final-score { font-size: 2rem; font-weight: 800; color: var(--accent-strong); }
+      /* ---------- rules / help screen ---------- */
+      .rules {
+        margin-top: 0;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        padding: 14px 18px 16px;
+        box-shadow: var(--shadow);
+      }
+      .rules h2 { font-size: 1rem; margin: 0 0 8px; font-weight: 800; }
+      .rules ul { margin: 0; padding-left: 1.25em; color: var(--ink-soft); font-weight: 500; font-size: .92rem; line-height: 1.75; }
+      .rules b { color: var(--ink); }
+      .fruit-key {
+        display: flex; flex-wrap: wrap; gap: 4px 14px;
+        margin-top: 10px; font-size: .85rem; color: var(--ink-soft); font-weight: 500;
+      }
+      .fruit-key span { display: inline-flex; align-items: center; gap: 5px; }
+      .fruit-key svg { width: 20px; height: 20px; }
+      /* ---------- view transition ---------- */
+      .view { animation: viewIn .26s ease both; }
+      @keyframes viewIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      /* ---------- ranking eligibility badge (game screen) ---------- */
+      .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: .75rem;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 5px 11px;
+        min-height: 32px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        color: var(--ink-soft);
+        box-shadow: var(--shadow-sm);
+        white-space: nowrap;
+      }
+      .rank-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+      .rank-badge.on { color: var(--accent-strong); border-color: var(--accent); background: var(--cell-alt); }
+      .rank-note-settings { color: var(--accent-strong); font-weight: 700; }
+      /* ---------- new-fruit unlock popup (board overlay) ---------- */
+      .unlock-pop {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(.9);
+        background: var(--panel);
+        border: 2px solid var(--accent);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 12px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: .92rem;
+        line-height: 1.45;
+        color: var(--ink);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9;
+        white-space: nowrap;
+      }
+      .unlock-pop svg { width: 44px; height: 44px; flex: none; }
+      .unlock-pop b { color: var(--accent-strong); font-size: 1.08rem; }
+      .unlock-pop.show { animation: unlockPop 2.6s ease forwards; }
+      @keyframes unlockPop {
+        0% { opacity: 0; transform: translate(-50%, -50%) scale(.8); }
+        10% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+        16% { transform: translate(-50%, -50%) scale(1); }
+        84% { opacity: 1; }
+        100% { opacity: 0; transform: translate(-50%, -56%) scale(1); }
+      }
+      .overlay .rank-note { color: var(--accent-strong); font-weight: 700; margin-top: -6px; }
+      /* ---------- ranking screen ---------- */
+      .rank-intro {
+        margin: 0 0 14px;
+        color: var(--ink-soft);
+        font-weight: 500;
+        font-size: .9rem;
+        line-height: 1.65;
+      }
+      .rank-list { list-style: none; margin: 0 0 14px; padding: 0; }
+      .rank-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        padding: 9px 14px;
+        margin-bottom: 8px;
+        box-shadow: var(--shadow-sm);
+      }
+      .rank-num {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        display: grid; place-items: center;
+        font-weight: 800;
+        font-size: .95rem;
+        background: var(--cell-alt);
+        color: var(--ink-soft);
+        flex: none;
+        font-variant-numeric: tabular-nums;
+      }
+      .rank-row:nth-child(1) .rank-num { background: #f6c453; color: #5a3d05; }
+      .rank-row:nth-child(2) .rank-num { background: #dde3e8; color: #45525c; }
+      .rank-row:nth-child(3) .rank-num { background: #eda971; color: #5f3408; }
+      @media (prefers-color-scheme: dark) {
+        .rank-row:nth-child(2) .rank-num { background: #4a5861; color: #e6eef3; }
+      }
+      .rank-score { font-size: 1.25rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .rank-score small { font-size: .8rem; font-weight: 700; color: var(--ink-soft); margin-left: 2px; }
+      .rank-date { margin-left: auto; color: var(--ink-soft); font-size: .85rem; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .rank-empty {
+        background: var(--panel);
+        border: 1px dashed var(--panel-border);
+        border-radius: var(--radius);
+        padding: 22px 18px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-weight: 500;
+        font-size: .92rem;
+        line-height: 1.7;
+        margin: 0 0 14px;
+      }
+      .rank-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+      .rank-confirm {
+        margin-top: 12px;
+        background: var(--panel);
+        border: 1px solid var(--danger);
+        border-radius: var(--radius);
+        padding: 12px 16px 14px;
+        box-shadow: var(--shadow-sm);
+      }
+      .rank-confirm p { margin: 0 0 10px; font-weight: 700; font-size: .9rem; }
+      .rank-confirm-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+      @media (max-width: 480px) {
+        main { padding: 8px 4px 24px; }
+        h1 { font-size: 1.35rem; }
+        .stat { min-width: 84px; padding: 6px 11px 7px; }
+        .stat .value { font-size: 1.15rem; }
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- Fruit artwork: hand-drawn SVG symbols, reused across the board -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <symbol id="f-apple" viewBox="0 0 48 48">
+          <path d="M24 15c-2-4-6-6-10-5 1 4 4 7 9 7z" fill="#4d9b3a"/>
+          <path d="M24 14c0-3 1-6 3-8" stroke="#7a4a21" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <path d="M24 17c-3-2.4-7-3-10.4-1C8.6 18.6 7.6 25 9.8 31.4c1.9 5.6 5.6 10.6 9.4 10.6 1.5 0 2.3-.7 4.8-.7s3.3.7 4.8.7c3.8 0 7.5-5 9.4-10.6C40.4 25 39.4 18.6 34.4 16 31 14 27 14.6 24 17z" fill="#e23b3b"/>
+          <ellipse cx="17" cy="24" rx="3.4" ry="5.4" fill="#ff8a7a" opacity=".65" transform="rotate(-14 17 24)"/>
+        </symbol>
+        <symbol id="f-orange" viewBox="0 0 48 48">
+          <path d="M25 11c-.6-3.6 1-6.6 3.4-8.4 2 1.8 2.4 4.8.8 7.2-1.2 1.8-3.2 2-4.2 1.2z" fill="#4d9b3a"/>
+          <path d="M24 12v-3" stroke="#7a4a21" stroke-width="2.4" stroke-linecap="round"/>
+          <circle cx="24" cy="27" r="16.5" fill="#f58a1f"/>
+          <circle cx="18" cy="32" r="1.3" fill="#d96f0d"/><circle cx="28" cy="35" r="1.3" fill="#d96f0d"/>
+          <circle cx="31" cy="24" r="1.3" fill="#d96f0d"/><circle cx="15" cy="22" r="1.3" fill="#d96f0d"/>
+          <ellipse cx="17.5" cy="20" rx="3.6" ry="5.2" fill="#ffb066" opacity=".7" transform="rotate(-18 17.5 20)"/>
+        </symbol>
+        <symbol id="f-lemon" viewBox="0 0 48 48">
+          <path d="M26 10c0-3.4 2-6 5-7.4 1.4 2.8.6 6-1.8 7.6-1.4.9-3.2.5-3.2-.2z" fill="#4d9b3a"/>
+          <path d="M9 31c-2.4-.8-3.4-2.4-3-4.4.4-1.8 2-2.6 3.8-2.4C16 14.8 26.6 9.6 34 13c6.4 3 8.4 11.4 4.6 18.6C34.6 39.2 25.4 43 18 40.6 13.4 39.2 10 35.6 9 31z" fill="#f2c41c"/>
+          <path d="M37 16.4c1.8-.4 3.4.2 4 1.8.6 1.8-.4 3.4-2.2 4" fill="#f2c41c"/>
+          <ellipse cx="19" cy="22" rx="6.5" ry="3.6" fill="#ffe27a" opacity=".8" transform="rotate(-32 19 22)"/>
+        </symbol>
+        <symbol id="f-grapes" viewBox="0 0 48 48">
+          <path d="M24 10c-1-4 1-7.4 4.4-9.4C30.8 3 31 6.8 29 9.6 27.6 11.4 25 11.6 24 10z" fill="#4d9b3a"/>
+          <path d="M24 11c0-2.4.8-4.4 2.4-6" stroke="#7a4a21" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <g fill="#7a4fa3">
+            <circle cx="15" cy="17" r="6"/><circle cx="24" cy="15.5" r="6"/><circle cx="33" cy="17" r="6"/>
+            <circle cx="19.5" cy="24.5" r="6"/><circle cx="28.5" cy="24.5" r="6"/>
+            <circle cx="24" cy="32" r="6"/><circle cx="24" cy="40" r="5.4"/>
+          </g>
+          <g fill="#b18fd6" opacity=".75">
+            <circle cx="13" cy="15" r="1.8"/><circle cx="22" cy="13.5" r="1.8"/><circle cx="31" cy="15" r="1.8"/>
+            <circle cx="17.5" cy="22.5" r="1.8"/><circle cx="26.5" cy="22.5" r="1.8"/><circle cx="22" cy="30" r="1.8"/>
+          </g>
+        </symbol>
+        <symbol id="f-berry" viewBox="0 0 48 48">
+          <path d="M24 44C14 36.4 9.4 27.6 10.6 19.6c.8-5.2 5-8 9.6-7.4 1.4.2 2.6.8 3.8.8s2.4-.6 3.8-.8c4.6-.6 8.8 2.2 9.6 7.4C38.6 27.6 34 36.4 24 44z" fill="#ef4b6b"/>
+          <path d="M24 13.6L20.4 7l-1.8 5L13 8.6l2.2 5.2-5 1 4.4 3.4L24 15.4l9.4 2.8L37.8 14.8l-5-1L35 8.6 29.4 12 27.6 7z" fill="#4d9b3a"/>
+          <path d="M24 8.4c0-2.2.8-4 2.4-5.4" stroke="#3c7a2e" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <g fill="#ffd9e0">
+            <ellipse cx="18" cy="22" rx="1.2" ry="1.9"/><ellipse cx="29" cy="21" rx="1.2" ry="1.9"/>
+            <ellipse cx="23.5" cy="27" rx="1.2" ry="1.9"/><ellipse cx="17" cy="30" rx="1.2" ry="1.9"/>
+            <ellipse cx="30" cy="30" rx="1.2" ry="1.9"/><ellipse cx="23.5" cy="36" rx="1.2" ry="1.9"/>
+          </g>
+        </symbol>
+        <symbol id="f-melon" viewBox="0 0 48 48">
+          <path d="M24 8c1-2.6 3-4.4 5.6-5.2.6 2.4-.4 4.8-2.4 6.2-1.2.8-3 .6-3.2-1z" fill="#4d9b3a"/>
+          <circle cx="24" cy="27" r="16.5" fill="#8fce62"/>
+          <path d="M17 12.6c-2.4 9-2.4 19.8 0 28.8M31 12.6c2.4 9 2.4 19.8 0 28.8M24 10.6v32.8" stroke="#5da83e" stroke-width="2.2" fill="none"/>
+          <ellipse cx="17" cy="20" rx="3" ry="5" fill="#c4ec9f" opacity=".7" transform="rotate(-14 17 20)"/>
+        </symbol>
+        <symbol id="f-peach" viewBox="0 0 48 48">
+          <path d="M25 10c-.4-3.8 1.4-6.8 4.4-8.4 1.8 2.2 1.6 5.4-.4 7.6-1.4 1.6-3.8 1.8-4 .8z" fill="#4d9b3a"/>
+          <path d="M24 12c.4 4-.4 6.4-2.4 8.6-4.8 5.4-4.4 13.6 1.2 18.4" stroke="#e87f95" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <path d="M24 12.6c-6.8-3-14.6.6-16.6 7.8-1.8 6.6 1.2 14.6 7.2 18.8 3 2 6 2.4 9.4 1.2 3.4 1.2 6.4.8 9.4-1.2 6-4.2 9-12.2 7.2-18.8C38.6 13.2 30.8 9.6 24 12.6z" fill="#f7a8b8"/>
+          <ellipse cx="16.5" cy="21" rx="3.4" ry="5.4" fill="#ffd3dc" opacity=".8" transform="rotate(-16 16.5 21)"/>
+        </symbol>
+      </defs>
+    </svg>
+
+    <main>
+      <!-- ================= ゲーム画面 ================= -->
+      <div class="view" id="gameView">
+      <h1>フルーツライン</h1>
+      <p class="tagline">フルーツを動かして、縦・横・斜めにそろえて消そう。</p>
+
+      <div class="status">
+        <div class="stat">
+          <div class="label">スコア</div>
+          <div class="value" id="score">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">手数</div>
+          <div class="value" id="moves">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">盤面の数</div>
+          <div class="value" id="filled">0 / 49</div>
+        </div>
+        <div class="next-box">
+          <div class="label">つぎに落ちるフルーツ</div>
+          <div class="next-fruits" id="nextFruits"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="restartBtn" type="button">はじめから</button>
+        <button class="btn" id="rankingBtn" type="button">ランキング</button>
+        <button class="btn" id="settingsBtn" type="button">⚙ 設定</button>
+        <button class="btn" id="helpBtn" type="button">？ 説明</button>
+        <button class="btn icon" id="soundBtn" type="button" aria-label="サウンドのオン・オフ">♪ オン</button>
+        <span class="rank-badge on" id="rankBadge"><span class="dot"></span>ランキング対象</span>
+      </div>
+
+      <div class="board-wrap">
+        <div class="board" id="board" role="grid" aria-label="7×7の盤面"></div>
+        <div class="score-pop" id="scorePop" aria-hidden="true"></div>
+        <div class="unlock-pop" id="unlockPop" aria-hidden="true"></div>
+        <div class="overlay" id="overlay">
+          <div class="card">
+            <h2>盤面がいっぱいになりました</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <p id="finalDetail"></p>
+            <p class="rank-note" id="rankNote"></p>
+            <button class="btn primary" id="againBtn" type="button">もう一度あそぶ</button>
+          </div>
+        </div>
+      </div>
+
+      </div><!-- /gameView -->
+
+      <!-- ================= 設定画面 ================= -->
+      <div class="view" id="settingsView" hidden>
+        <div class="screen-head">
+          <button class="back-btn" id="settingsBackBtn" type="button">← ゲームに戻る</button>
+          <h2 class="screen-title">設定</h2>
+        </div>
+      <section class="settings" id="settingsPanel" aria-label="ルール調整設定">
+        <h2>ルール調整設定（試験用）</h2>
+        <p class="note">ルールを変えて遊び心地を試すための設定です。「その場で反映」の項目はゲームの途中でもすぐ効きます。「再スタートで反映」の項目は、下の「適用して再スタート」を押したときに新しいゲームへ反映されます。</p>
+        <p class="note rank-note-settings" id="settingsRankNote"></p>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">消去後の扱い</span>
+            <span class="set-now" id="nowClear"></span>
+            <span class="live-tag">その場で反映</span>
+          </div>
+          <p class="set-desc">「標準」は元のルール：その手で消えたらフルーツは降らず、消えなかったら次が降ってきます。「連続移動」は、消えたら降らさずにもう一手動け、連続で消すとその消去分に連続回数倍の倍率（2連続目×2、3連続目×3…）がかかります。「いつも落下」は、消えても毎手かならず次が降ってきます。</p>
+          <span class="seg" role="group" aria-label="消去後の扱いの設定">
+            <button type="button" id="clearStdBtn" aria-pressed="true">標準（消えたら降らない）</button>
+            <button type="button" id="clearChainBtn" aria-pressed="false">連続移動</button>
+            <button type="button" id="clearAlwaysBtn" aria-pressed="false">いつも落下</button>
+          </span>
+        </div>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">1回に降ってくる個数</span>
+            <span class="set-now" id="nowDrop"></span>
+            <span class="live-tag">その場で反映</span>
+          </div>
+          <p class="set-desc">落下の対象になる手番で落ちてくるフルーツの数です。「つぎに落ちるフルーツ」の表示もこの個数になります。</p>
+          <select id="dropSel" aria-label="1回に降ってくる個数"></select>
+        </div>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">消えるのに必要な並び数</span>
+            <span class="set-now" id="nowLine"></span>
+            <span class="live-tag">その場で反映</span>
+          </div>
+          <p class="set-desc">縦・横・斜めに同じフルーツがこの数以上並ぶと消えます。小さいほど消しやすく、大きいほど難しくなります。</p>
+          <select id="lineSel" aria-label="消えるのに必要な並び数"></select>
+        </div>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">フルーツの種類</span>
+            <span class="set-now" id="nowTypes"></span>
+            <span class="restart-tag">再スタートで反映</span>
+          </div>
+          <p class="set-desc">デフォルトは「得点で増える」です：<b>開始時は4種</b>で、スコアが<b>3000点で5種、5000点で6種、8000点で7種</b>に増えていきます。増えた種類は、そのあと落ちてくるフルーツ（予告を含む）にすぐ加わります。試験用に「固定」を選ぶと種類数が固定されますが、<b>固定で始めたゲームはランキング対象外</b>です。</p>
+          <span class="seg" role="group" aria-label="フルーツの種類の設定">
+            <button type="button" id="typesScoreBtn" aria-pressed="true">得点で増える（デフォルト）</button>
+            <button type="button" id="typesFixedBtn" aria-pressed="false">固定</button>
+          </span>
+          <span id="typeSelWrap" hidden>
+            <select id="typeSel" aria-label="固定するフルーツの種類数"></select>
+          </span>
+        </div>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">最初に配置される個数</span>
+            <span class="set-now" id="nowStart"></span>
+            <span class="restart-tag">再スタートで反映</span>
+          </div>
+          <p class="set-desc">ゲーム開始時に盤面へ置かれるフルーツの数です。</p>
+          <select id="startSel" aria-label="最初に配置されるフルーツの個数"></select>
+        </div>
+
+        <div class="set-row">
+          <div class="set-head">
+            <span class="set-name">盤面サイズ</span>
+            <span class="set-now" id="nowSize"></span>
+            <span class="restart-tag">再スタートで反映</span>
+          </div>
+          <p class="set-desc">デフォルトは7×7です。試験用に9×9へも変えられます（大きい盤面は長く遊べます）。</p>
+          <span class="seg" role="group" aria-label="盤面サイズの設定">
+            <button type="button" id="size7Btn" aria-pressed="false">7×7</button>
+            <button type="button" id="size9Btn" aria-pressed="true">9×9</button>
+          </span>
+        </div>
+
+        <div class="set-actions">
+          <button class="btn primary" id="applyBtn" type="button">適用して再スタート</button>
+          <button class="btn" id="defaultsBtn" type="button">デフォルトに戻す</button>
+          <button class="btn" id="closeSettingsBtn" type="button">ゲームに戻る</button>
+        </div>
+      </section>
+
+      </div><!-- /settingsView -->
+
+      <!-- ================= 説明画面 ================= -->
+      <div class="view" id="helpView" hidden>
+        <div class="screen-head">
+          <button class="back-btn" id="helpBackBtn" type="button">← ゲームに戻る</button>
+          <h2 class="screen-title">説明</h2>
+        </div>
+      <section class="rules">
+        <h2>あそびかた</h2>
+        <ul>
+          <li id="rulePathText">フルーツをタップして選び、<b>空きマス</b>をタップするとそこへ移動します（通路があるマスにだけ移動できます）。</li>
+          <li id="ruleDropText">移動でラインがそろわなかったら、<b>新しいフルーツが3個</b>落ちてきます。</li>
+          <li id="ruleLineText"><b>縦・横・斜め</b>に同じフルーツが<b>5個以上</b>並ぶと消えて得点になります。長くそろうほど高得点です。</li>
+          <li id="ruleTypesText">フルーツは<b>最初4種類</b>。スコアが<b>3000点・5000点・8000点</b>に達するたび、新しいフルーツが1種類ずつ増えます（最大7種類）。</li>
+          <li id="ruleClearText">移動でそろえたときは、新しいフルーツは落ちてきません。</li>
+          <li>盤面がすべて埋まるとゲーム終了です。</li>
+        </ul>
+
+        <h2 style="margin-top:18px;">スコアのしくみ ― 長くつなぐほどお得</h2>
+        <p class="score-note">ライン1本の得点は、長さ n に対して <b>5 × n ×（n＋1）点</b> です。1個目＝10点、2個目＝20点、3個目＝30点…と、つなぐほど1個あたりの単価が上がっていく合計なので、<b>5個を何度も消すより、なるべく長くつなぐ方が割に合います</b>（9個は5個の3倍）。</p>
+        <table class="score-table" aria-label="ラインの長さと得点の表">
+          <thead>
+            <tr><th>つないだ長さ</th><th class="num">得点</th><th class="num">5個と比べて</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>5個</td><td class="num pts">150点</td><td class="num">―</td></tr>
+            <tr><td>6個</td><td class="num pts">210点</td><td class="num">1.4倍</td></tr>
+            <tr><td>7個</td><td class="num pts">280点</td><td class="num">約1.9倍</td></tr>
+            <tr><td>8個</td><td class="num pts">360点</td><td class="num">2.4倍</td></tr>
+            <tr><td>9個</td><td class="num pts">450点</td><td class="num">3倍</td></tr>
+          </tbody>
+        </table>
+        <p class="score-note">上の表は、消えるのに必要な並び数がデフォルトの<b>5個</b>のときの例です。設定で並び数を変えても計算式は同じで、たとえば3個なら60点、4個なら100点になります。</p>
+        <ul>
+          <li><b>同時ライン倍率：</b>1手で2本以上のラインが同時に消えたら、ライン得点の合計に<b>本数倍</b>がかかります（2本なら×2、3本なら×3）。十字消しなどを狙う価値があります。</li>
+          <li><b>連続倍率：</b>消去が続いている間は、<b>2連続目×2、3連続目×3…</b>と、その消去分の得点に倍率がかかります（落下で続けて消えたときや、連続移動モードで続けて消したとき）。落下しても何も消えなかった時点で、連続はリセットされます。</li>
+        </ul>
+        <div class="fruit-key" id="fruitKey"></div>
+      </section>
+        <div style="margin-top:14px;">
+          <button class="btn" id="helpCloseBtn" type="button">ゲームに戻る</button>
+        </div>
+      </div><!-- /helpView -->
+
+      <!-- ================= ランキング画面 ================= -->
+      <div class="view" id="rankingView" hidden>
+        <div class="screen-head">
+          <button class="back-btn" id="rankingBackBtn" type="button">← ゲームに戻る</button>
+          <h2 class="screen-title">ランキング</h2>
+        </div>
+        <p class="rank-intro">デフォルト設定（7×7・初期配置3個・落下3個・並び5個・標準モード・種類は得点で増加）で最後まで遊んだゲームの歴代トップ10です。記録はこの端末に保存されています。</p>
+        <ol class="rank-list" id="rankList"></ol>
+        <p class="rank-empty" id="rankEmpty" hidden>まだ記録がありません。<br />デフォルト設定で最後まで遊ぶと、ここにスコアと日時が残ります。</p>
+        <div class="rank-actions" id="rankActions">
+          <button class="btn danger" id="rankClearBtn" type="button">記録をすべて消す</button>
+        </div>
+        <div class="rank-confirm" id="rankConfirm" hidden>
+          <p>ランキングの記録をすべて消します。元に戻せません。</p>
+          <div class="rank-confirm-btns">
+            <button class="btn danger-solid" id="rankClearYes" type="button">消す</button>
+            <button class="btn" id="rankClearNo" type="button">やめる</button>
+          </div>
+        </div>
+      </div><!-- /rankingView -->
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+        var FRUITS = [
+          { id: "f-apple",  name: "りんご" },
+          { id: "f-orange", name: "みかん" },
+          { id: "f-lemon",  name: "レモン" },
+          { id: "f-grapes", name: "ぶどう" },
+          { id: "f-berry",  name: "いちご" },
+          { id: "f-melon",  name: "メロン" },
+          { id: "f-peach",  name: "もも" }
+        ];
+        var DEFAULTS = { clearMode: "standard", drop: 3, line: 5, typesMode: "score", types: 4, start: 3, size: 7 };
+        var S = {
+          clearMode: DEFAULTS.clearMode,   /* standard | chain | always */
+          drop: DEFAULTS.drop,
+          line: DEFAULTS.line,
+          typesMode: DEFAULTS.typesMode,   /* score: grows with score | fixed: S.types */
+          types: DEFAULTS.types,
+          start: DEFAULTS.start,
+          size: DEFAULTS.size
+        };
+        var DIRS4 = [[1,0],[-1,0],[0,1],[0,-1]];
+        var LINE_DIRS = [[1,0],[0,1],[1,1],[1,-1]];
+
+        var boardEl = document.getElementById("board");
+        var scoreEl = document.getElementById("score");
+        var movesEl = document.getElementById("moves");
+        var filledEl = document.getElementById("filled");
+        var nextEl = document.getElementById("nextFruits");
+        var overlayEl = document.getElementById("overlay");
+        var scorePopEl = document.getElementById("scorePop");
+        var unlockPopEl = document.getElementById("unlockPop");
+        var popTimer = null;
+        var unlockTimer = null;
+        var finalScoreEl = document.getElementById("finalScore");
+        var finalDetailEl = document.getElementById("finalDetail");
+        var rankNoteEl = document.getElementById("rankNote");
+
+        var cells = [];
+        var builtSize = 0;
+        var grid = [];
+        var selected = -1;
+        var nextQueue = [];
+        var score = 0, moves = 0, totalCleared = 0;
+        var chainCount = 0;
+        var busy = false, over = false;
+        var soundOn = true;
+        /* per-game snapshot of the type settings (restart-only settings) */
+        var curTypesMode = DEFAULTS.typesMode;
+        var curTypesFixed = DEFAULTS.types;
+        /* ranking eligibility of the game currently being played */
+        var gameRankOK = true;
+        var gameRecorded = false;
+
+        /* ---------- sound (tiny WebAudio blips) ---------- */
+        var actx = null;
+        function tone(freq, dur, delay, type, vol) {
+          if (!soundOn) return;
+          try {
+            if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+            if (actx.state === "suspended") actx.resume();
+            var t = actx.currentTime + (delay || 0);
+            var o = actx.createOscillator(), g = actx.createGain();
+            o.type = type || "sine";
+            o.frequency.setValueAtTime(freq, t);
+            g.gain.setValueAtTime(vol || 0.08, t);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            o.connect(g); g.connect(actx.destination);
+            o.start(t); o.stop(t + dur + 0.02);
+          } catch (e) { /* audio unavailable: stay silent */ }
+        }
+        function sndSelect() { tone(660, 0.07, 0, "triangle", 0.06); }
+        function sndStep(i) { tone(420 + i * 30, 0.05, 0, "sine", 0.035); }
+        function sndSpawn() { tone(520, 0.09, 0, "triangle", 0.06); tone(780, 0.1, 0.05, "triangle", 0.05); }
+        function sndClear(n) {
+          var base = [523, 659, 784, 1047];
+          for (var i = 0; i < Math.min(4 + Math.floor(n / 3), 7); i++) {
+            tone(base[i % 4] * (i >= 4 ? 1.5 : 1), 0.12, i * 0.06, "triangle", 0.07);
+          }
+        }
+        function sndFail() { tone(196, 0.16, 0, "sawtooth", 0.04); }
+        function sndOver() { tone(392, 0.25, 0, "triangle", 0.07); tone(330, 0.25, 0.22, "triangle", 0.07); tone(262, 0.4, 0.44, "triangle", 0.07); }
+
+        /* ---------- helpers ---------- */
+        function total() { return S.size * S.size; }
+        /* Fruit types in play right now. In "score" mode the pool starts at
+           4 and grows by one at 3000 / 5000 / 8000 points (max 7). */
+        var TYPE_STEPS = [3000, 5000, 8000];
+        function activeTypes() {
+          if (curTypesMode === "fixed") return curTypesFixed;
+          var n = 4;
+          for (var i = 0; i < TYPE_STEPS.length; i++) if (score >= TYPE_STEPS[i]) n++;
+          return Math.min(n, FRUITS.length);
+        }
+        function isDefaultSettings() {
+          return S.clearMode === DEFAULTS.clearMode &&
+            S.drop === DEFAULTS.drop &&
+            S.line === DEFAULTS.line &&
+            S.typesMode === DEFAULTS.typesMode &&
+            S.start === DEFAULTS.start &&
+            S.size === DEFAULTS.size;
+        }
+        function idx(x, y) { return y * S.size + x; }
+        function xy(i) { return [i % S.size, Math.floor(i / S.size)]; }
+        function rand(n) { return Math.floor(Math.random() * n); }
+        function emptyCells() {
+          var out = [];
+          for (var i = 0; i < grid.length; i++) if (grid[i] < 0) out.push(i);
+          return out;
+        }
+        function fruitSVG(type, cls) {
+          return '<svg class="fruit ' + (cls || "") + '" viewBox="0 0 48 48" aria-hidden="true"><use href="#' + FRUITS[type].id + '"></use></svg>';
+        }
+        /* BFS shortest path through empty cells (start cell treated as free). */
+        function findPath(from, to) {
+          if (from === to) return null;
+          var prev = new Array(grid.length).fill(-2);
+          var q = [from];
+          prev[from] = -1;
+          while (q.length) {
+            var cur = q.shift();
+            var c = xy(cur);
+            for (var d = 0; d < 4; d++) {
+              var nx = c[0] + DIRS4[d][0], ny = c[1] + DIRS4[d][1];
+              if (nx < 0 || ny < 0 || nx >= S.size || ny >= S.size) continue;
+              var ni = idx(nx, ny);
+              if (prev[ni] !== -2) continue;
+              if (grid[ni] >= 0 && ni !== to) continue;
+              prev[ni] = cur;
+              if (ni === to) {
+                var path = [to], p = cur;
+                while (p !== -1) { path.unshift(p); p = prev[p]; }
+                return path;
+              }
+              q.push(ni);
+            }
+          }
+          return null;
+        }
+        /* Lines of S.line+ through any of the given cells, as separate groups
+           (one group per line) so each line can be scored by its own length. */
+        function findLineGroups(seeds) {
+          var groups = [];
+          var seen = {};
+          seeds.forEach(function (s) {
+            var type = grid[s];
+            if (type < 0) return;
+            var c = xy(s);
+            LINE_DIRS.forEach(function (dir) {
+              var run = [s];
+              [1, -1].forEach(function (sgn) {
+                var x = c[0], y = c[1];
+                for (;;) {
+                  x += dir[0] * sgn; y += dir[1] * sgn;
+                  if (x < 0 || y < 0 || x >= S.size || y >= S.size) break;
+                  var ni = idx(x, y);
+                  if (grid[ni] !== type) break;
+                  run.push(ni);
+                }
+              });
+              if (run.length >= S.line) {
+                var key = run.slice().sort(function (a, b) { return a - b; }).join(",");
+                if (!seen[key]) { seen[key] = true; groups.push(run); }
+              }
+            });
+          });
+          return groups;
+        }
+        /* Super-linear line score: the k-th fruit is worth 10*k points,
+           so a line of length n scores 10*(1+2+...+n) = 5*n*(n+1).
+           n=5 -> 150, n=6 -> 210, n=7 -> 280, n=8 -> 360, n=9 -> 450. */
+        function scoreForLength(n) { return 5 * n * (n + 1); }
+        function lineMultName(k) {
+          return k === 2 ? "ダブルライン" : k === 3 ? "トリプルライン" : k + "本ライン";
+        }
+        /* Human-readable breakdown lines for one clear (info from resolveLines). */
+        function breakdownParts(info) {
+          var parts = [];
+          if (info.groups.length === 1) {
+            parts.push({ text: info.groups[0] + "個つないだ！ " + scoreForLength(info.groups[0]) + "点", kind: "main" });
+          } else {
+            info.groups.forEach(function (n) {
+              parts.push({ text: n + "個ライン " + scoreForLength(n) + "点", kind: "main" });
+            });
+            parts.push({ text: lineMultName(info.lineMult) + " ×" + info.lineMult, kind: "mult" });
+          }
+          if (info.chainMult > 1) parts.push({ text: info.chainMult + "連続 ×" + info.chainMult, kind: "mult" });
+          if (info.lineMult > 1 || info.chainMult > 1) {
+            parts.push({ text: "合計 +" + info.gained + "点", kind: "total" });
+          }
+          return parts;
+        }
+        function showScorePop(info) {
+          scorePopEl.innerHTML = breakdownParts(info).map(function (p) {
+            return '<div class="' + (p.kind === "total" ? "pop-total" : p.kind === "mult" ? "pop-mult" : "") + '">' + p.text + "</div>";
+          }).join("");
+          scorePopEl.classList.remove("show");
+          /* restart the animation */
+          void scorePopEl.offsetWidth;
+          scorePopEl.classList.add("show");
+          if (popTimer) clearTimeout(popTimer);
+          popTimer = setTimeout(function () { scorePopEl.classList.remove("show"); }, 2350);
+        }
+
+        /* ---------- rendering ---------- */
+        function buildBoard() {
+          boardEl.innerHTML = "";
+          cells = [];
+          boardEl.style.setProperty("--n", String(S.size));
+          boardEl.setAttribute("data-size", String(S.size));
+          boardEl.style.gridTemplateColumns = "repeat(" + S.size + ", var(--cell-size))";
+          boardEl.style.gridTemplateRows = "repeat(" + S.size + ", var(--cell-size))";
+          boardEl.setAttribute("aria-label", S.size + "×" + S.size + "の盤面");
+          for (var y = 0; y < S.size; y++) {
+            for (var x = 0; x < S.size; x++) {
+              (function (i, cx, cy) {
+                var b = document.createElement("button");
+                b.type = "button";
+                b.className = "cell" + (((cx + cy) % 2) ? " alt" : "");
+                b.setAttribute("role", "gridcell");
+                b.addEventListener("click", function () { onCellTap(i); });
+                b.addEventListener("mouseenter", function () { onCellHover(i); });
+                boardEl.appendChild(b);
+                cells.push(b);
+              })(idx(x, y), x, y);
+            }
+          }
+          builtSize = S.size;
+        }
+        function renderCell(i, animClass) {
+          var cell = cells[i];
+          if (!cell) return;
+          cell.innerHTML = grid[i] >= 0 ? fruitSVG(grid[i], animClass) : "";
+          cell.classList.toggle("selected", i === selected);
+          cell.setAttribute("aria-label", grid[i] >= 0 ? FRUITS[grid[i]].name : "空きマス");
+        }
+        function renderAll(animClass) {
+          for (var i = 0; i < grid.length; i++) renderCell(i, animClass);
+        }
+        function renderStatus() {
+          scoreEl.textContent = score;
+          movesEl.textContent = moves;
+          var n = 0;
+          for (var i = 0; i < grid.length; i++) if (grid[i] >= 0) n++;
+          filledEl.textContent = n + " / " + total();
+          nextEl.innerHTML = nextQueue.map(function (t) {
+            return '<span class="nf"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#' + FRUITS[t].id + '"></use></svg></span>';
+          }).join("");
+        }
+        function renderLegend() {
+          document.getElementById("fruitKey").innerHTML = FRUITS.slice(0, activeTypes()).map(function (f) {
+            return '<span><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#' + f.id + '"></use></svg>' + f.name + "</span>";
+          }).join("");
+        }
+        function clearHints() {
+          cells.forEach(function (c) { c.classList.remove("path-hint"); });
+        }
+
+        /* A score threshold was crossed: the new fruit type joins the draw
+           pool at once (the "next" preview is redrawn too) and a short
+           overlay popup on the board announces it. Board fruits stay as-is. */
+        function onTypesUnlocked(before, after) {
+          drawNext();
+          renderStatus();
+          renderLegend();
+          var names = [];
+          for (var t = before; t < after; t++) names.push(FRUITS[t].name);
+          unlockPopEl.innerHTML =
+            '<svg viewBox="0 0 48 48" aria-hidden="true"><use href="#' + FRUITS[after - 1].id + '"></use></svg>' +
+            "<span>新しいフルーツ登場！<br /><b>" + names.join("・") + "</b></span>";
+          unlockPopEl.classList.remove("show");
+          void unlockPopEl.offsetWidth;
+          unlockPopEl.classList.add("show");
+          if (unlockTimer) clearTimeout(unlockTimer);
+          unlockTimer = setTimeout(function () { unlockPopEl.classList.remove("show"); }, 2650);
+          sndSpawn();
+        }
+
+        /* ---------- ranking (localStorage, top 10, default games only) ---------- */
+        var RANK_KEY = "fruitline.ranking.v1";
+        function loadRanking() {
+          try {
+            var raw = localStorage.getItem(RANK_KEY);
+            var arr = raw ? JSON.parse(raw) : [];
+            return Array.isArray(arr) ? arr.filter(function (e) { return e && typeof e.score === "number" && typeof e.ts === "number"; }) : [];
+          } catch (e) { return []; }
+        }
+        function saveRanking(list) {
+          try { localStorage.setItem(RANK_KEY, JSON.stringify(list)); } catch (e) { /* storage unavailable */ }
+        }
+        /* Returns the 1-based rank if the score made the top 10, else -1. */
+        function recordScore(sc) {
+          var list = loadRanking();
+          var entry = { score: sc, ts: Date.now() };
+          list.push(entry);
+          list.sort(function (a, b) { return (b.score - a.score) || (a.ts - b.ts); });
+          var pos = list.indexOf(entry) + 1;
+          saveRanking(list.slice(0, 10));
+          return pos <= 10 ? pos : -1;
+        }
+        function fmtDateTime(ts) {
+          var d = new Date(ts);
+          function p(n) { return (n < 10 ? "0" : "") + n; }
+          return d.getFullYear() + "/" + p(d.getMonth() + 1) + "/" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+        }
+        function renderRanking() {
+          var list = loadRanking().slice(0, 10);
+          document.getElementById("rankEmpty").hidden = list.length > 0;
+          document.getElementById("rankActions").hidden = list.length === 0;
+          document.getElementById("rankConfirm").hidden = true;
+          document.getElementById("rankList").innerHTML = list.map(function (e, i) {
+            return '<li class="rank-row"><span class="rank-num">' + (i + 1) + '</span>' +
+              '<span class="rank-score">' + e.score + "<small>点</small></span>" +
+              '<span class="rank-date">' + fmtDateTime(e.ts) + "</span></li>";
+          }).join("");
+        }
+        /* Badge on the game screen + note on the settings screen. Neither
+           moves the layout: both are always-rendered, fixed-content slots. */
+        function updateRankUI() {
+          var badge = document.getElementById("rankBadge");
+          if (badge) {
+            badge.classList.toggle("on", gameRankOK);
+            badge.innerHTML = '<span class="dot"></span>' + (gameRankOK ? "ランキング対象" : "ランキング対象外");
+          }
+          var note = document.getElementById("settingsRankNote");
+          if (note) {
+            note.textContent = isDefaultSettings()
+              ? "現在の設定はデフォルトです。この設定で始めたゲームは、最後まで設定を変えなければランキングに記録されます。"
+              : "現在の設定はデフォルトと異なります。この設定で始めたゲームはランキングに記録されません。";
+          }
+        }
+        function taintRank() {
+          gameRankOK = false;
+          updateRankUI();
+        }
+
+        /* ---------- game flow ---------- */
+        function drawNext() {
+          nextQueue = [];
+          for (var i = 0; i < S.drop; i++) nextQueue.push(rand(activeTypes()));
+        }
+        function placeRandom(types) {
+          var placed = [];
+          types.forEach(function (t) {
+            var empt = emptyCells();
+            if (!empt.length) return;
+            var at = empt[rand(empt.length)];
+            grid[at] = t;
+            placed.push(at);
+          });
+          return placed;
+        }
+        function resolveLines(seeds, after) {
+          var groups = findLineGroups(seeds);
+          if (!groups.length) { after(0, 0, null); return; }
+          var union = {};
+          groups.forEach(function (g) { g.forEach(function (i) { union[i] = true; }); });
+          var lines = Object.keys(union).map(Number);
+          busy = true;
+          lines.forEach(function (i) {
+            var svg = cells[i].querySelector(".fruit");
+            if (svg) svg.classList.add("clearing");
+          });
+          sndClear(lines.length);
+          /* Scoring: per-line super-linear score, summed, then
+             x number-of-lines for simultaneous lines, then x chain count
+             for consecutive clears (2nd in a row x2, 3rd x3, ...). */
+          chainCount++;
+          var base = 0;
+          var lengths = groups.map(function (g) { return g.length; });
+          lengths.forEach(function (n) { base += scoreForLength(n); });
+          var info = {
+            groups: lengths,
+            base: base,
+            lineMult: groups.length,
+            chainMult: chainCount,
+            gained: base * groups.length * chainCount
+          };
+          setTimeout(function () {
+            lines.forEach(function (i) { grid[i] = -1; renderCell(i); });
+            var typesBefore = activeTypes();
+            score += info.gained;
+            totalCleared += lines.length;
+            renderStatus();
+            showScorePop(info);
+            var typesAfter = activeTypes();
+            if (typesAfter > typesBefore) onTypesUnlocked(typesBefore, typesAfter);
+            busy = false;
+            after(lines.length, info.gained, info);
+          }, 400);
+        }
+        function checkGameOver() {
+          if (emptyCells().length === 0) {
+            over = true;
+            finalScoreEl.textContent = score + "点";
+            finalDetailEl.textContent = moves + "手で " + totalCleared + " 個のフルーツを消しました。";
+            /* Record exactly once per game, and only when the whole game
+               was played with the default settings. */
+            if (gameRankOK && !gameRecorded) {
+              gameRecorded = true;
+              var pos = recordScore(score);
+              rankNoteEl.textContent = pos > 0
+                ? "ランキング " + pos + " 位に記録しました！"
+                : "トップ10には入りませんでした。";
+            } else if (!gameRankOK) {
+              rankNoteEl.textContent = "カスタム設定のゲームのため、ランキングには記録されません。";
+            } else {
+              rankNoteEl.textContent = "";
+            }
+            overlayEl.classList.add("show");
+            sndOver();
+            return true;
+          }
+          return false;
+        }
+        /* Render a freshly dropped fruit: it falls from above the cell,
+           squashes on landing and gives one small bounce. delaySec staggers
+           each fruit so they do not all land at once. */
+        function renderDropped(i, delaySec) {
+          renderCell(i, "drop");
+          var cell = cells[i];
+          var svg = cell.querySelector(".fruit");
+          if (svg) svg.style.animationDelay = delaySec + "s";
+          cell.classList.add("dropping");
+          setTimeout(function () { cell.classList.remove("dropping"); }, delaySec * 1000 + 470);
+        }
+        function dropPhase(after) {
+          busy = true; /* no input while the fruits are falling */
+          var placed = placeRandom(nextQueue);
+          drawNext();
+          placed.forEach(function (cellIdx, k) { renderDropped(cellIdx, k * 0.1); });
+          renderStatus();
+          if (placed.length) sndSpawn();
+          /* last fruit lands at (n-1)*0.1s stagger + 0.4s fall; resolve after that */
+          var wait = placed.length ? (placed.length - 1) * 100 + 430 : 80;
+          setTimeout(function () {
+            busy = false;
+            resolveLines(placed, function (cleared, gained, info) {
+              if (cleared <= 0) {
+                chainCount = 0; /* a drop that clears nothing breaks the chain */
+              }
+              if (!checkGameOver() && after) after();
+            });
+          }, wait);
+        }
+        function animateTravel(path, type, done) {
+          var wrap = boardEl.parentElement;
+          var wrapRect = wrap.getBoundingClientRect();
+          var startRect = cells[path[0]].getBoundingClientRect();
+          var traveler = document.createElement("div");
+          traveler.className = "fruit traveler";
+          traveler.innerHTML = '<svg viewBox="0 0 48 48" width="100%" height="100%" aria-hidden="true"><use href="#' + FRUITS[type].id + '"></use></svg>';
+          traveler.style.width = startRect.width * 0.88 + "px";
+          traveler.style.height = startRect.height * 0.88 + "px";
+          traveler.style.left = (startRect.left - wrapRect.left + startRect.width * 0.06) + "px";
+          traveler.style.top = (startRect.top - wrapRect.top + startRect.height * 0.06) + "px";
+          traveler.style.transform = "scale(1.12)";
+          wrap.appendChild(traveler);
+          /* glide slowly enough to follow with the eyes: about 0.45-0.6s total */
+          var steps = Math.max(1, path.length - 1);
+          var totalMs = Math.min(600, Math.max(450, steps * 75));
+          var stepMs = totalMs / steps;
+          var k = 1;
+          function step() {
+            if (k >= path.length) {
+              traveler.remove();
+              done();
+              return;
+            }
+            var r = cells[path[k]].getBoundingClientRect();
+            traveler.style.transition = "left " + stepMs + "ms ease-in-out, top " + stepMs + "ms ease-in-out";
+            traveler.style.left = (r.left - wrapRect.left + r.width * 0.06) + "px";
+            traveler.style.top = (r.top - wrapRect.top + r.height * 0.06) + "px";
+            sndStep(k);
+            k++;
+            setTimeout(step, stepMs);
+          }
+          setTimeout(step, 10);
+        }
+        function doMove(from, to, path) {
+          busy = true;
+          var type = grid[from];
+          grid[from] = -1;
+          selected = -1;
+          clearHints();
+          renderCell(from);
+          renderCell(to);
+          animateTravel(path, type, function () {
+            grid[to] = type;
+            renderCell(to);
+            moves++;
+            renderStatus();
+            resolveLines([to], function (cleared, gained, info) {
+              busy = false;
+              if (cleared > 0) {
+                if (S.clearMode === "always") {
+                  dropPhase();
+                } else {
+                  checkGameOver();
+                }
+              } else {
+                /* chainCount is kept until the drop resolves: a drop clear
+                   continues the chain, a drop with no clear resets it. */
+                dropPhase();
+              }
+            });
+          });
+        }
+        function onCellTap(i) {
+          if (busy || over) return;
+          if (grid[i] >= 0) {
+            selected = (selected === i) ? -1 : i;
+            clearHints();
+            renderAll();
+            if (selected >= 0) sndSelect();
+            return;
+          }
+          if (selected < 0) return;
+          /* movement always requires a path through empty cells */
+          var path = findPath(selected, i);
+          if (!path) {
+            sndFail();
+            return;
+          }
+          doMove(selected, i, path);
+        }
+        function onCellHover(i) {
+          if (busy || over || selected < 0) return;
+          clearHints();
+          if (grid[i] >= 0) return;
+          var path = findPath(selected, i);
+          if (path) path.forEach(function (p) { if (p !== selected) cells[p].classList.add("path-hint"); });
+        }
+
+        function newGame() {
+          if (builtSize !== S.size) buildBoard();
+          curTypesMode = S.typesMode;
+          curTypesFixed = S.types;
+          gameRankOK = isDefaultSettings();
+          gameRecorded = false;
+          grid = new Array(total()).fill(-1);
+          selected = -1;
+          score = 0; moves = 0; totalCleared = 0; chainCount = 0;
+          busy = false; over = false;
+          overlayEl.classList.remove("show");
+          drawNext();
+          var startTypes = [];
+          for (var i = 0; i < S.start; i++) startTypes.push(rand(activeTypes()));
+          var placed = placeRandom(startTypes);
+          renderAll();
+          placed.forEach(function (cellIdx, k) { renderDropped(cellIdx, k * 0.08); });
+          renderStatus();
+          renderLegend();
+          updateRankUI();
+          resolveLines(placed, function () { chainCount = 0; });
+        }
+
+        /* ---------- settings UI ---------- */
+        var $ = function (id) { return document.getElementById(id); };
+        var applyBtn = $("applyBtn");
+        function fillSelect(sel, min, max, unit) {
+          var html = "";
+          for (var v = min; v <= max; v++) html += '<option value="' + v + '">' + v + unit + "</option>";
+          sel.innerHTML = html;
+        }
+        fillSelect($("dropSel"), 1, 5, "個");
+        fillSelect($("lineSel"), 3, 9, "個");
+        fillSelect($("typeSel"), 3, 7, "種類");
+        fillSelect($("startSel"), 1, 20, "個");
+
+        function press(btn, on) { btn.setAttribute("aria-pressed", on ? "true" : "false"); }
+        function markApplyNeeded() { applyBtn.classList.add("attention"); }
+        function clearApplyNeeded() { applyBtn.classList.remove("attention"); }
+
+        function refreshSettingsUI() {
+          press($("clearStdBtn"), S.clearMode === "standard");
+          press($("clearChainBtn"), S.clearMode === "chain");
+          press($("clearAlwaysBtn"), S.clearMode === "always");
+          press($("typesScoreBtn"), S.typesMode === "score");
+          press($("typesFixedBtn"), S.typesMode === "fixed");
+          $("typeSelWrap").hidden = S.typesMode !== "fixed";
+          press($("size7Btn"), S.size === 7);
+          press($("size9Btn"), S.size === 9);
+          $("dropSel").value = String(S.drop);
+          $("lineSel").value = String(S.line);
+          $("typeSel").value = String(S.types);
+          $("startSel").value = String(S.start);
+          $("nowClear").textContent = "現在：" + (S.clearMode === "standard" ? "標準（消えたら降らない）" : S.clearMode === "chain" ? "連続移動" : "いつも落下");
+          $("nowDrop").textContent = "現在：" + S.drop + "個";
+          $("nowLine").textContent = "現在：" + S.line + "個";
+          $("nowTypes").textContent = S.typesMode === "score" ? "現在：得点で増える（開始4種）" : "現在：固定 " + S.types + "種類";
+          $("nowStart").textContent = "現在：" + S.start + "個";
+          $("nowSize").textContent = "現在：" + S.size + "×" + S.size;
+          /* rules text follows the live settings (movement always needs a path) */
+          $("ruleDropText").innerHTML = "移動でラインがそろわなかったら、<b>新しいフルーツが" + S.drop + "個</b>落ちてきます。";
+          $("ruleLineText").innerHTML = "<b>縦・横・斜め</b>に同じフルーツが<b>" + S.line + "個以上</b>並ぶと消えて得点になります。得点は長さ×（長さ＋1）×5点で、長くつなぐほど1個あたりの点が上がります（5個＝150点、9個＝450点）。";
+          $("ruleTypesText").innerHTML = S.typesMode === "score"
+            ? "フルーツは<b>最初4種類</b>。スコアが<b>3000点・5000点・8000点</b>に達するたび、新しいフルーツが1種類ずつ増えます（最大7種類）。増えた種類は、次に落ちてくるフルーツにもすぐ加わります。"
+            : "フルーツは<b>" + S.types + "種類</b>で固定です（設定で変更できます）。固定で遊んだゲームはランキング対象外です。";
+          $("ruleClearText").textContent =
+            S.clearMode === "standard" ? "移動でそろえたときは、新しいフルーツは落ちてきません。" :
+            S.clearMode === "chain" ? "連続移動モードでは、そろえた手はフルーツが落ちず、続けて移動できます。連続で消すと、その消去分に連続回数倍（2連続目×2、3連続目×3…）がかかります。" :
+            "いつも落下モードでは、そろえた手でも新しいフルーツが落ちてきます。";
+          updateRankUI();
+        }
+
+        function setClearMode(mode) {
+          S.clearMode = mode;
+          chainCount = 0;
+          taintRank(); /* live setting: the running game leaves the defaults */
+          refreshSettingsUI();
+        }
+        function setSize(v) {
+          S.size = v;
+          if (S.line > v) S.line = v;
+          refreshSettingsUI();
+          markApplyNeeded();
+        }
+
+        $("clearStdBtn").addEventListener("click", function () { setClearMode("standard"); });
+        $("clearChainBtn").addEventListener("click", function () { setClearMode("chain"); });
+        $("clearAlwaysBtn").addEventListener("click", function () { setClearMode("always"); });
+        $("typesScoreBtn").addEventListener("click", function () {
+          S.typesMode = "score";
+          refreshSettingsUI();
+          markApplyNeeded();
+        });
+        $("typesFixedBtn").addEventListener("click", function () {
+          S.typesMode = "fixed";
+          refreshSettingsUI();
+          markApplyNeeded();
+        });
+        $("size7Btn").addEventListener("click", function () { setSize(7); });
+        $("size9Btn").addEventListener("click", function () { setSize(9); });
+        $("dropSel").addEventListener("change", function () {
+          S.drop = parseInt(this.value, 10);
+          drawNext();
+          renderStatus();
+          taintRank();
+          refreshSettingsUI();
+        });
+        $("lineSel").addEventListener("change", function () {
+          S.line = parseInt(this.value, 10);
+          taintRank();
+          refreshSettingsUI();
+        });
+        $("typeSel").addEventListener("change", function () {
+          S.types = parseInt(this.value, 10);
+          refreshSettingsUI();
+          markApplyNeeded();
+        });
+        $("startSel").addEventListener("change", function () {
+          S.start = parseInt(this.value, 10);
+          refreshSettingsUI();
+          markApplyNeeded();
+        });
+        applyBtn.addEventListener("click", function () {
+          clearApplyNeeded();
+          newGame();
+          showView("game");
+        });
+        $("defaultsBtn").addEventListener("click", function () {
+          S.clearMode = DEFAULTS.clearMode;
+          S.drop = DEFAULTS.drop;
+          S.line = DEFAULTS.line;
+          S.typesMode = DEFAULTS.typesMode;
+          S.types = DEFAULTS.types;
+          S.start = DEFAULTS.start;
+          chainCount = 0;
+          drawNext();
+          renderStatus();
+          taintRank(); /* the running game was not played under the defaults throughout */
+          setSize(DEFAULTS.size);
+          refreshSettingsUI();
+        });
+
+        /* ---------- separate screens: game / settings / help / ranking ---------- */
+        function showView(name) {
+          $("gameView").hidden = name !== "game";
+          $("settingsView").hidden = name !== "settings";
+          $("helpView").hidden = name !== "help";
+          $("rankingView").hidden = name !== "ranking";
+          if (name === "ranking") renderRanking();
+          try { window.scrollTo(0, 0); } catch (e) {}
+        }
+        $("settingsBtn").addEventListener("click", function () { showView("settings"); });
+        $("helpBtn").addEventListener("click", function () { showView("help"); });
+        $("rankingBtn").addEventListener("click", function () { showView("ranking"); });
+        $("rankingBackBtn").addEventListener("click", function () { showView("game"); });
+        $("rankClearBtn").addEventListener("click", function () { $("rankConfirm").hidden = false; });
+        $("rankClearNo").addEventListener("click", function () { $("rankConfirm").hidden = true; });
+        $("rankClearYes").addEventListener("click", function () {
+          saveRanking([]);
+          renderRanking();
+        });
+        $("settingsBackBtn").addEventListener("click", function () { showView("game"); });
+        $("closeSettingsBtn").addEventListener("click", function () { showView("game"); });
+        $("helpBackBtn").addEventListener("click", function () { showView("game"); });
+        $("helpCloseBtn").addEventListener("click", function () { showView("game"); });
+        $("restartBtn").addEventListener("click", function () { clearApplyNeeded(); newGame(); });
+        $("againBtn").addEventListener("click", function () { clearApplyNeeded(); newGame(); });
+        var soundBtn = $("soundBtn");
+        soundBtn.addEventListener("click", function () {
+          soundOn = !soundOn;
+          soundBtn.textContent = soundOn ? "♪ オン" : "♪ オフ";
+          if (soundOn) sndSelect();
+        });
+        boardEl.addEventListener("mouseleave", clearHints);
+
+        buildBoard();
+        refreshSettingsUI();
+        newGame();
+      })();
+    </script>
+  </body>
+</html>
