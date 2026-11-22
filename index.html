@@ -4,6 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#eef6e9" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131a10" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="フルーツライン" />
     <link rel="icon" href="data:," />
     <title>フルーツライン</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -60,6 +66,10 @@
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; }
+      html {
+        height: -webkit-fill-available;
+        overscroll-behavior: none;
+      }
       body {
         font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Hiragino Sans", system-ui, sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -69,79 +79,108 @@
           var(--bg);
         color: var(--ink);
         min-height: 100vh;
+        min-height: 100dvh;
+        min-height: -webkit-fill-available;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
       main {
         max-width: 600px;
         margin: 0 auto;
-        padding: 10px 6px 28px;
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        padding: calc(6px + env(safe-area-inset-top)) calc(6px + env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) calc(6px + env(safe-area-inset-left));
+      }
+      /* Game screen: everything fits one viewport, no scrolling. */
+      .view {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #gameView {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow: hidden;
       }
       h1 {
-        font-size: 1.55rem;
+        font-size: 1.08rem;
         font-weight: 800;
-        margin: 2px 0 2px;
+        margin: 0;
+        line-height: 1.25;
         letter-spacing: .02em;
+        white-space: nowrap;
       }
-      .tagline {
-        margin: 0 0 8px;
-        color: var(--ink-soft);
-        font-size: .92rem;
-        font-weight: 500;
-      }
-      /* ---------- status bar ---------- */
+      /* The tagline lives on the help screen's rules; on the compact game
+         screen it is omitted so the board gets the space. */
+      .tagline { display: none; }
+      /* ---------- status bar: one thin pill row ---------- */
       .status {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: stretch;
-        margin-bottom: 8px;
-      }
-      .stat {
+        flex-wrap: nowrap;
+        gap: 10px;
+        align-items: center;
         background: var(--panel);
         border: 1px solid var(--panel-border);
-        border-radius: var(--radius);
-        padding: 7px 14px 8px;
-        min-width: 96px;
-        box-shadow: var(--shadow);
+        border-radius: 999px;
+        padding: 4px 13px;
+        box-shadow: var(--shadow-sm);
+      }
+      .stat {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        min-width: 0;
+        white-space: nowrap;
       }
       .stat .label {
-        font-size: .68rem;
+        font-size: .62rem;
         font-weight: 700;
         color: var(--ink-soft);
-        letter-spacing: .08em;
+        letter-spacing: .03em;
       }
       .stat .value {
-        font-size: 1.35rem;
+        font-size: 1.02rem;
         font-weight: 800;
-        line-height: 1.15;
+        line-height: 1.2;
         font-variant-numeric: tabular-nums;
       }
       .next-box {
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: var(--radius);
-        padding: 7px 14px 8px;
-        box-shadow: var(--shadow);
         margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
       }
       .next-box .label {
-        font-size: .68rem;
+        font-size: .62rem;
         font-weight: 700;
         color: var(--ink-soft);
-        letter-spacing: .08em;
+        letter-spacing: .03em;
       }
-      .next-fruits { display: flex; gap: 6px; margin-top: 2px; }
+      .next-fruits { display: flex; gap: 2px; }
       .next-fruits .nf {
-        width: 30px; height: 30px;
+        width: 23px; height: 23px;
         display: grid; place-items: center;
       }
-      .next-fruits svg { width: 28px; height: 28px; }
-      /* ---------- controls ---------- */
+      .next-fruits svg { width: 21px; height: 21px; }
+      /* ---------- controls: one compact pill row on the game screen ---------- */
       .controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 8px;
-        align-items: center;
+        display: grid;
+        grid-template-columns: 1.12fr 1.12fr .84fr .84fr .8fr 1.6fr;
+        gap: 4px;
+        align-items: stretch;
+        width: 100%;
+      }
+      .controls .btn {
+        width: 100%;
+        padding-left: 2px;
+        padding-right: 2px;
+        text-align: center;
       }
       .btn {
         font: inherit;
@@ -157,6 +196,11 @@
         box-shadow: var(--shadow-sm);
         transition: background .15s ease, border-color .15s ease, box-shadow .15s ease, transform .05s ease;
       }
+      .controls .btn {
+        font-size: .74rem;
+        min-height: 32px;
+        white-space: nowrap;
+      }
       .btn:hover { border-color: var(--accent); box-shadow: var(--shadow); }
       .btn:active { transform: translateY(1px); }
       .btn.primary {
@@ -170,6 +214,7 @@
       .btn.danger-solid { background: var(--danger); border-color: var(--danger); color: #ffffff; }
       .btn.danger-solid:hover { background: var(--danger); border-color: var(--danger); filter: brightness(1.07); }
       .btn.icon { padding: 8px 13px; }
+      .controls .btn.icon { padding: 5px 2px; }
       .btn.attention {
         background: var(--gold);
         border-color: var(--gold);
@@ -292,22 +337,38 @@
         box-shadow: var(--shadow);
         width: max-content;
         max-width: 100%;
-        margin: 0 auto;
+        margin: 2px auto auto;
         box-sizing: border-box;
+        touch-action: none;
+        overscroll-behavior: contain;
       }
       .board {
-        --cell-size: min(60px, calc((100vw - 48px) / 9));
+        /* Square cells sized by whichever is tighter: the screen width, or
+           the viewport height left after the compact header (title + status
+           row + controls row + padding ≈ 190px). vh first as a fallback,
+           then dvh so Safari's collapsing toolbar cannot push the last
+           row off-screen. */
+        --cell-size: min(60px, calc((100vw - 48px) / 9), calc((100vh - 190px) / 9));
+        --cell-size: min(60px, calc((100vw - 48px) / 9), calc((100dvh - 190px) / 9));
         display: grid;
         gap: 3px;
         grid-template-columns: repeat(var(--n, 9), var(--cell-size));
         grid-template-rows: repeat(var(--n, 9), var(--cell-size));
         width: max-content;
-        touch-action: manipulation;
+        touch-action: none;
+        overscroll-behavior: contain;
         user-select: none;
         -webkit-user-select: none;
         -webkit-tap-highlight-color: transparent;
       }
-      .board[data-size="7"] { --cell-size: min(78px, calc((100vw - 40px) / 7)); }
+      .board[data-size="7"] {
+        --cell-size: min(78px, calc((100vw - 40px) / 7), calc((100vh - 190px) / 7));
+        --cell-size: min(78px, calc((100vw - 40px) / 7), calc((100dvh - 190px) / 7));
+      }
+      .board[data-size="9"] {
+        --cell-size: min(60px, calc((100vw - 48px) / 9), calc((100vh - 190px) / 9));
+        --cell-size: min(60px, calc((100vw - 48px) / 9), calc((100dvh - 190px) / 9));
+      }
       .cell {
         width: var(--cell-size);
         height: var(--cell-size);
@@ -476,11 +537,12 @@
       .rank-badge {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        font-size: .75rem;
+        justify-content: center;
+        gap: 4px;
+        font-size: .63rem;
         font-weight: 700;
         border-radius: 999px;
-        padding: 5px 11px;
+        padding: 4px 5px;
         min-height: 32px;
         border: 1px solid var(--panel-border);
         background: var(--panel);
@@ -488,7 +550,7 @@
         box-shadow: var(--shadow-sm);
         white-space: nowrap;
       }
-      .rank-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+      .rank-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
       .rank-badge.on { color: var(--accent-strong); border-color: var(--accent); background: var(--cell-alt); }
       .rank-note-settings { color: var(--accent-strong); font-weight: 700; }
       /* ---------- new-fruit unlock popup (board overlay) ---------- */
@@ -589,10 +651,17 @@
       .rank-confirm p { margin: 0 0 10px; font-weight: 700; font-size: .9rem; }
       .rank-confirm-btns { display: flex; gap: 8px; flex-wrap: wrap; }
       @media (max-width: 480px) {
-        main { padding: 8px 4px 24px; }
-        h1 { font-size: 1.35rem; }
-        .stat { min-width: 84px; padding: 6px 11px 7px; }
-        .stat .value { font-size: 1.15rem; }
+        main {
+          padding-left: calc(4px + env(safe-area-inset-left));
+          padding-right: calc(4px + env(safe-area-inset-right));
+        }
+        .status { gap: 8px; padding: 4px 11px; }
+        .stat .value { font-size: .98rem; }
+      }
+      @media (min-width: 560px) {
+        .controls .btn { font-size: .82rem; }
+        .rank-badge { font-size: .72rem; }
+        .stat .value { font-size: 1.1rem; }
       }
 
     </style>
@@ -678,8 +747,8 @@
           <div class="label">盤面の数</div>
           <div class="value" id="filled">0 / 49</div>
         </div>
-        <div class="next-box">
-          <div class="label">つぎに落ちるフルーツ</div>
+        <div class="next-box" aria-label="つぎに落ちるフルーツ">
+          <div class="label">つぎ</div>
           <div class="next-fruits" id="nextFruits"></div>
         </div>
       </div>
