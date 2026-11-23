@@ -186,7 +186,7 @@
       /* ---------- controls: one compact pill row on the game screen ---------- */
       .controls {
         display: grid;
-        grid-template-columns: 1.12fr 1.12fr .84fr .84fr .8fr 1.6fr;
+        grid-template-columns: 1.15fr 1.15fr .85fr .85fr;
         gap: 4px;
         align-items: stretch;
         width: 100%;
@@ -230,33 +230,6 @@
       .btn.danger-solid:hover { background: var(--danger); border-color: var(--danger); filter: brightness(1.07); }
       .btn.icon { padding: 8px 13px; }
       .controls .btn.icon { padding: 5px 2px; }
-      .btn.attention {
-        background: var(--gold);
-        border-color: var(--gold);
-        color: #3a2a08;
-      }
-      .seg {
-        display: inline-flex;
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: 999px;
-        padding: 3px;
-        box-shadow: var(--shadow);
-        align-items: center;
-        flex-wrap: wrap;
-      }
-      .seg .seg-label {
-        font-size: .78rem; font-weight: 700; color: var(--ink-soft);
-        padding: 0 6px 0 10px;
-      }
-      .seg button {
-        font: inherit; font-size: .85rem; font-weight: 700;
-        border: 0; background: transparent; color: var(--ink-soft);
-        border-radius: 999px; padding: 6px 12px; min-height: 36px; cursor: pointer;
-      }
-      .seg button[aria-pressed="true"] {
-        background: var(--accent); color: var(--accent-ink);
-      }
       /* ---------- views (separate screens) ---------- */
       .view[hidden] { display: none !important; }
       .screen-head {
@@ -286,62 +259,6 @@
         white-space: nowrap;
       }
       .back-btn:active { transform: translateY(1px); }
-      /* ---------- settings screen ---------- */
-      .settings {
-        background: var(--panel);
-        border: 1px solid var(--panel-border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        padding: 14px 16px 16px;
-        margin-bottom: 12px;
-      }
-      .settings h2 { font-size: 1.05rem; margin: 0 0 4px; font-weight: 800; }
-      .settings .note { margin: 0 0 10px; font-size: .82rem; color: var(--ink-soft); font-weight: 500; line-height: 1.6; }
-      .set-row {
-        padding: 10px 0;
-        border-top: 1px dashed var(--panel-border);
-      }
-      .set-row:first-of-type { border-top: 0; }
-      .set-row .set-head {
-        display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
-        margin-bottom: 6px;
-      }
-      .set-row .set-name { font-weight: 800; font-size: .95rem; }
-      .set-row .set-now {
-        font-size: .78rem; font-weight: 700; color: var(--accent-strong);
-        background: var(--cell-alt);
-        border-radius: 999px; padding: 2px 10px;
-      }
-      .set-row .set-desc { font-size: .82rem; color: var(--ink-soft); font-weight: 500; line-height: 1.55; margin: 0 0 8px; }
-      .set-row .seg { box-shadow: none; }
-      .set-row select {
-        font: inherit; font-weight: 700; font-size: .95rem;
-        color: var(--ink);
-        background: var(--cell);
-        border: 1px solid var(--panel-border);
-        border-radius: 10px;
-        padding: 6px 12px;
-        min-height: 40px;
-        min-width: 120px;
-      }
-      .restart-tag {
-        font-size: .72rem; font-weight: 700; color: #8a5a12;
-        background: #fdf0d3;
-        border-radius: 999px; padding: 2px 9px;
-      }
-      @media (prefers-color-scheme: dark) {
-        .restart-tag { color: #f2cd8a; background: #4a3a14; }
-      }
-      .live-tag {
-        font-size: .72rem; font-weight: 700; color: var(--accent-strong);
-        background: var(--cell-alt);
-        border-radius: 999px; padding: 2px 9px;
-      }
-      .settings .set-actions {
-        display: flex; flex-wrap: wrap; gap: 8px;
-        margin-top: 12px; padding-top: 12px;
-        border-top: 1px solid var(--panel-border);
-      }
       /* ---------- board ---------- */
       .board-wrap {
         position: relative;
@@ -554,13 +471,31 @@
         background: var(--panel);
         border: 1px solid var(--panel-border);
         border-radius: 18px;
-        padding: 22px 26px;
+        padding: 22px;
         box-shadow: var(--shadow);
-        max-width: 320px;
+        width: 100%;
+        max-width: 350px;
       }
-      .overlay h2 { margin: 0 0 6px; font-size: 1.4rem; font-weight: 800; }
-      .overlay p { margin: 0 0 14px; color: var(--ink-soft); font-weight: 500; }
+      /* keep-all + the <wbr> in the heading: Japanese text in the dialog
+         only ever breaks at phrase boundaries, never leaving a stray
+         1-2 character line like 「した」 or 「た。」. */
+      .overlay h2 {
+        margin: 0 0 6px;
+        font-size: 1.18rem;
+        font-weight: 800;
+        word-break: keep-all;
+        line-height: 1.45;
+      }
+      .overlay p { margin: 0 0 14px; color: var(--ink-soft); font-weight: 500; word-break: keep-all; }
+      .overlay .nw { white-space: nowrap; }
       .overlay .final-score { font-size: 2rem; font-weight: 800; color: var(--accent-strong); }
+      .overlay-btns {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      .overlay-btns .btn { flex: 1 1 128px; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
       /* ---------- rules / help screen ---------- */
       .rules {
         margin-top: 0;
@@ -585,26 +520,6 @@
         from { opacity: 0; transform: translateY(5px); }
         to   { opacity: 1; transform: translateY(0); }
       }
-      /* ---------- ranking eligibility badge (game screen) ---------- */
-      .rank-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        font-size: .63rem;
-        font-weight: 700;
-        border-radius: 999px;
-        padding: 4px 5px;
-        min-height: 32px;
-        border: 1px solid var(--panel-border);
-        background: var(--panel);
-        color: var(--ink-soft);
-        box-shadow: var(--shadow-sm);
-        white-space: nowrap;
-      }
-      .rank-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
-      .rank-badge.on { color: var(--accent-strong); border-color: var(--accent); background: var(--cell-alt); }
-      .rank-note-settings { color: var(--accent-strong); font-weight: 700; }
       /* ---------- new-fruit unlock popup (board overlay) ---------- */
       .unlock-pop {
         position: absolute;
@@ -718,7 +633,6 @@
       }
       @media (min-width: 560px) {
         .controls .btn { font-size: .82rem; }
-        .rank-badge { font-size: .72rem; }
         .stat .value { font-size: 1.3rem; }
       }
 
@@ -819,11 +733,14 @@
         <div class="unlock-pop" id="unlockPop" aria-hidden="true"></div>
         <div class="overlay" id="overlay">
           <div class="card">
-            <h2>盤面がいっぱいになりました</h2>
+            <h2>盤面がいっぱいに<wbr />なりました</h2>
             <div class="final-score" id="finalScore">0</div>
             <p id="finalDetail"></p>
             <p class="rank-note" id="rankNote"></p>
-            <button class="btn primary" id="againBtn" type="button">もう一度あそぶ</button>
+            <div class="overlay-btns">
+              <button class="btn primary" id="againBtn" type="button">もう一度あそぶ</button>
+              <button class="btn" id="overRankBtn" type="button">ランキングを見る</button>
+            </div>
           </div>
         </div>
       </div>
@@ -836,106 +753,11 @@
       <div class="controls">
         <button class="btn primary" id="restartBtn" type="button">はじめから</button>
         <button class="btn" id="rankingBtn" type="button">ランキング</button>
-        <button class="btn" id="settingsBtn" type="button">⚙ 設定</button>
         <button class="btn" id="helpBtn" type="button">？ 説明</button>
         <button class="btn icon" id="soundBtn" type="button" aria-label="サウンドのオン・オフ">♪ オン</button>
-        <span class="rank-badge on" id="rankBadge"><span class="dot"></span>ランキング対象</span>
       </div>
 
       </div><!-- /gameView -->
-
-      <!-- ================= 設定画面 ================= -->
-      <div class="view" id="settingsView" hidden>
-        <div class="screen-head">
-          <button class="back-btn" id="settingsBackBtn" type="button">← ゲームに戻る</button>
-          <h2 class="screen-title">設定</h2>
-        </div>
-      <section class="settings" id="settingsPanel" aria-label="ルール調整設定">
-        <h2>ルール調整設定（試験用）</h2>
-        <p class="note">ルールを変えて遊び心地を試すための設定です。「その場で反映」の項目はゲームの途中でもすぐ効きます。「再スタートで反映」の項目は、下の「適用して再スタート」を押したときに新しいゲームへ反映されます。</p>
-        <p class="note rank-note-settings" id="settingsRankNote"></p>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">消去後の扱い</span>
-            <span class="set-now" id="nowClear"></span>
-            <span class="live-tag">その場で反映</span>
-          </div>
-          <p class="set-desc">「標準」は元のルール：その手で消えたらフルーツは降らず、消えなかったら次が降ってきます。「連続移動」は、消えたら降らさずにもう一手動け、連続で消すとその消去分に連続回数倍の倍率（2連続目×2、3連続目×3…）がかかります。「いつも落下」は、消えても毎手かならず次が降ってきます。</p>
-          <span class="seg" role="group" aria-label="消去後の扱いの設定">
-            <button type="button" id="clearStdBtn" aria-pressed="true">標準（消えたら降らない）</button>
-            <button type="button" id="clearChainBtn" aria-pressed="false">連続移動</button>
-            <button type="button" id="clearAlwaysBtn" aria-pressed="false">いつも落下</button>
-          </span>
-        </div>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">1回に降ってくる個数</span>
-            <span class="set-now" id="nowDrop"></span>
-            <span class="live-tag">その場で反映</span>
-          </div>
-          <p class="set-desc">落下の対象になる手番で落ちてくるフルーツの数です。「つぎに落ちるフルーツ」の表示もこの個数になります。</p>
-          <select id="dropSel" aria-label="1回に降ってくる個数"></select>
-        </div>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">消えるのに必要な並び数</span>
-            <span class="set-now" id="nowLine"></span>
-            <span class="live-tag">その場で反映</span>
-          </div>
-          <p class="set-desc">縦・横・斜めに同じフルーツがこの数以上並ぶと消えます。小さいほど消しやすく、大きいほど難しくなります。</p>
-          <select id="lineSel" aria-label="消えるのに必要な並び数"></select>
-        </div>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">フルーツの種類</span>
-            <span class="set-now" id="nowTypes"></span>
-            <span class="restart-tag">再スタートで反映</span>
-          </div>
-          <p class="set-desc">デフォルトは「得点で増える」です：<b>開始時は4種</b>で、スコアが<b>3000点で5種、5000点で6種、8000点で7種</b>に増えていきます。増えた種類は、そのあと落ちてくるフルーツ（予告を含む）にすぐ加わります。試験用に「固定」を選ぶと種類数が固定されますが、<b>固定で始めたゲームはランキング対象外</b>です。</p>
-          <span class="seg" role="group" aria-label="フルーツの種類の設定">
-            <button type="button" id="typesScoreBtn" aria-pressed="true">得点で増える（デフォルト）</button>
-            <button type="button" id="typesFixedBtn" aria-pressed="false">固定</button>
-          </span>
-          <span id="typeSelWrap" hidden>
-            <select id="typeSel" aria-label="固定するフルーツの種類数"></select>
-          </span>
-        </div>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">最初に配置される個数</span>
-            <span class="set-now" id="nowStart"></span>
-            <span class="restart-tag">再スタートで反映</span>
-          </div>
-          <p class="set-desc">ゲーム開始時に盤面へ置かれるフルーツの数です。</p>
-          <select id="startSel" aria-label="最初に配置されるフルーツの個数"></select>
-        </div>
-
-        <div class="set-row">
-          <div class="set-head">
-            <span class="set-name">盤面サイズ</span>
-            <span class="set-now" id="nowSize"></span>
-            <span class="restart-tag">再スタートで反映</span>
-          </div>
-          <p class="set-desc">デフォルトは7×7です。試験用に9×9へも変えられます（大きい盤面は長く遊べます）。</p>
-          <span class="seg" role="group" aria-label="盤面サイズの設定">
-            <button type="button" id="size7Btn" aria-pressed="false">7×7</button>
-            <button type="button" id="size9Btn" aria-pressed="true">9×9</button>
-          </span>
-        </div>
-
-        <div class="set-actions">
-          <button class="btn primary" id="applyBtn" type="button">適用して再スタート</button>
-          <button class="btn" id="defaultsBtn" type="button">デフォルトに戻す</button>
-          <button class="btn" id="closeSettingsBtn" type="button">ゲームに戻る</button>
-        </div>
-      </section>
-
-      </div><!-- /settingsView -->
 
       <!-- ================= 説明画面 ================= -->
       <div class="view" id="helpView" hidden>
@@ -949,7 +771,7 @@
           <li id="rulePathText">フルーツをタップして選び、<b>空きマス</b>をタップするとそこへ移動します（通路があるマスにだけ移動できます）。</li>
           <li id="ruleDropText">移動でラインがそろわなかったら、<b>新しいフルーツが3個</b>落ちてきます。</li>
           <li id="ruleLineText"><b>縦・横・斜め</b>に同じフルーツが<b>5個以上</b>並ぶと消えて得点になります。長くそろうほど高得点です。</li>
-          <li id="ruleTypesText">フルーツは<b>最初4種類</b>。スコアが<b>3000点・5000点・8000点</b>に達するたび、新しいフルーツが1種類ずつ増えます（最大7種類）。</li>
+          <li id="ruleTypesText">フルーツは<b>最初4種類</b>。スコアが<b>3000点・6000点・9000点</b>に達するたび、新しいフルーツが1種類ずつ増えます（最大7種類）。増えた種類は、次に落ちてくるフルーツにもすぐ加わります。</li>
           <li id="ruleClearText">移動でそろえたときは、新しいフルーツは落ちてきません。</li>
           <li>盤面がすべて埋まるとゲーム終了です。</li>
         </ul>
@@ -968,10 +790,10 @@
             <tr><td>9個</td><td class="num pts">450点</td><td class="num">3倍</td></tr>
           </tbody>
         </table>
-        <p class="score-note">上の表は、消えるのに必要な並び数がデフォルトの<b>5個</b>のときの例です。設定で並び数を変えても計算式は同じで、たとえば3個なら60点、4個なら100点になります。</p>
+        <p class="score-note">並びが<b>5個</b>未満では消えません。計算式は長さだけで決まるので、長くつなぐほど1個あたりの単価が上がります。</p>
         <ul>
           <li><b>同時ライン倍率：</b>1手で2本以上のラインが同時に消えたら、ライン得点の合計に<b>本数倍</b>がかかります（2本なら×2、3本なら×3）。十字消しなどを狙う価値があります。</li>
-          <li><b>連続倍率：</b>消去が続いている間は、<b>2連続目×2、3連続目×3…</b>と、その消去分の得点に倍率がかかります（落下で続けて消えたときや、連続移動モードで続けて消したとき）。落下しても何も消えなかった時点で、連続はリセットされます。</li>
+          <li><b>連続倍率：</b>消去が続いている間は、<b>2連続目×2、3連続目×3…</b>と、その消去分の得点に倍率がかかります（落下したフルーツで続けて消えたとき）。落下しても何も消えなかった時点で、連続はリセットされます。</li>
         </ul>
         <div class="fruit-key" id="fruitKey"></div>
       </section>
@@ -986,9 +808,9 @@
           <button class="back-btn" id="rankingBackBtn" type="button">← ゲームに戻る</button>
           <h2 class="screen-title">ランキング</h2>
         </div>
-        <p class="rank-intro">デフォルト設定（7×7・初期配置3個・落下3個・並び5個・標準モード・種類は得点で増加）で最後まで遊んだゲームの歴代トップ10です。各記録には点数・手数・消した数・日時が残ります。記録はこの端末に保存されています。</p>
+        <p class="rank-intro">最後まで遊んだゲームの歴代トップ10です。各記録には点数・手数・消した数・日時が残ります。記録はこの端末に保存されています。</p>
         <ol class="rank-list" id="rankList"></ol>
-        <p class="rank-empty" id="rankEmpty" hidden>まだ記録がありません。<br />デフォルト設定で最後まで遊ぶと、ここにスコアと日時が残ります。</p>
+        <p class="rank-empty" id="rankEmpty" hidden>まだ記録がありません。<br />最後まで遊ぶと、ここにスコアと日時が残ります。</p>
         <div class="rank-actions" id="rankActions">
           <button class="btn danger" id="rankClearBtn" type="button">記録をすべて消す</button>
         </div>
@@ -1052,11 +874,9 @@
         var scoreHistory = [{ m: 0, s: 0 }];
         var busy = false, over = false;
         var soundOn = true;
-        /* per-game snapshot of the type settings (restart-only settings) */
+        /* per-game snapshot of the type settings */
         var curTypesMode = DEFAULTS.typesMode;
         var curTypesFixed = DEFAULTS.types;
-        /* ranking eligibility of the game currently being played */
-        var gameRankOK = true;
         var gameRecorded = false;
 
         /* ---------- sound (tiny WebAudio blips) ---------- */
@@ -1090,22 +910,14 @@
 
         /* ---------- helpers ---------- */
         function total() { return S.size * S.size; }
-        /* Fruit types in play right now. In "score" mode the pool starts at
-           4 and grows by one at 3000 / 5000 / 8000 points (max 7). */
-        var TYPE_STEPS = [3000, 5000, 8000];
+        /* Fruit types in play right now. The pool starts at 4 and grows
+           by one at 3000 / 6000 / 9000 points (max 7). */
+        var TYPE_STEPS = [3000, 6000, 9000];
         function activeTypes() {
           if (curTypesMode === "fixed") return curTypesFixed;
           var n = 4;
           for (var i = 0; i < TYPE_STEPS.length; i++) if (score >= TYPE_STEPS[i]) n++;
           return Math.min(n, FRUITS.length);
-        }
-        function isDefaultSettings() {
-          return S.clearMode === DEFAULTS.clearMode &&
-            S.drop === DEFAULTS.drop &&
-            S.line === DEFAULTS.line &&
-            S.typesMode === DEFAULTS.typesMode &&
-            S.start === DEFAULTS.start &&
-            S.size === DEFAULTS.size;
         }
         function idx(x, y) { return y * S.size + x; }
         function xy(i) { return [i % S.size, Math.floor(i / S.size)]; }
@@ -1276,7 +1088,7 @@
         }
         /* Bottom-dock graph panel: a line graph of cumulative score (y)
            against moves (x), one point per move count. Dashed guide lines
-           mark the fruit-unlock thresholds (3000 / 5000 / 8000); the y scale
+           mark the fruit-unlock thresholds (3000 / 6000 / 9000); the y scale
            always reaches at least ~1200 and always includes the next
            threshold above the current score, then grows with the score.
            The panel is fixed-height and carries no text at all — just the
@@ -1354,7 +1166,7 @@
           sndSpawn();
         }
 
-        /* ---------- ranking (localStorage, top 10, default games only) ---------- */
+        /* ---------- ranking (localStorage, top 10, every finished game) ---------- */
         var RANK_KEY = "fruitline.ranking.v1";
         function loadRanking() {
           try {
@@ -1400,26 +1212,6 @@
               '<span class="rank-date">' + fmtDateTime(e.ts) + "</span></li>";
           }).join("");
         }
-        /* Badge on the game screen + note on the settings screen. Neither
-           moves the layout: both are always-rendered, fixed-content slots. */
-        function updateRankUI() {
-          var badge = document.getElementById("rankBadge");
-          if (badge) {
-            badge.classList.toggle("on", gameRankOK);
-            badge.innerHTML = '<span class="dot"></span>' + (gameRankOK ? "ランキング対象" : "ランキング対象外");
-          }
-          var note = document.getElementById("settingsRankNote");
-          if (note) {
-            note.textContent = isDefaultSettings()
-              ? "現在の設定はデフォルトです。この設定で始めたゲームは、最後まで設定を変えなければランキングに記録されます。"
-              : "現在の設定はデフォルトと異なります。この設定で始めたゲームはランキングに記録されません。";
-          }
-        }
-        function taintRank() {
-          gameRankOK = false;
-          updateRankUI();
-        }
-
         /* ---------- game flow ---------- */
         function drawNext() {
           nextQueue = [];
@@ -1479,17 +1271,20 @@
           if (emptyCells().length === 0) {
             over = true;
             finalScoreEl.textContent = score + "点";
-            finalDetailEl.textContent = moves + "手で " + totalCleared + " 個のフルーツを消しました。";
-            /* Record exactly once per game, and only when the whole game
-               was played with the default settings. */
-            if (gameRankOK && !gameRecorded) {
+            /* Phrase-sized nowrap chunks, so the line can only break
+               between phrases — never leaving 「た。」 alone on a line. */
+            finalDetailEl.innerHTML =
+              '<span class="nw">' + moves + "手で</span>" +
+              '<span class="nw">' + totalCleared + "個のフルーツを</span>" +
+              '<span class="nw">消しました。</span>';
+            /* Record exactly once per game (rules are fixed, so every
+               finished game is a ranking game). */
+            if (!gameRecorded) {
               gameRecorded = true;
               var pos = recordScore(score, moves, totalCleared);
-              rankNoteEl.textContent = pos > 0
-                ? "ランキング " + pos + " 位に記録しました！"
-                : "トップ10には入りませんでした。";
-            } else if (!gameRankOK) {
-              rankNoteEl.textContent = "カスタム設定のゲームのため、ランキングには記録されません。";
+              rankNoteEl.innerHTML = pos > 0
+                ? '<span class="nw">ランキング' + pos + '位に</span><span class="nw">記録しました！</span>'
+                : '<span class="nw">トップ10には</span><span class="nw">入りませんでした。</span>';
             } else {
               rankNoteEl.textContent = "";
             }
@@ -1622,7 +1417,6 @@
           if (builtSize !== S.size) buildBoard();
           curTypesMode = S.typesMode;
           curTypesFixed = S.types;
-          gameRankOK = isDefaultSettings();
           gameRecorded = false;
           grid = new Array(total()).fill(-1);
           selected = -1;
@@ -1638,140 +1432,20 @@
           placed.forEach(function (cellIdx, k) { renderDropped(cellIdx, k * 0.08); });
           renderStatus();
           renderLegend();
-          updateRankUI();
           resolveLines(placed, function () { chainCount = 0; });
         }
 
-        /* ---------- settings UI ---------- */
         var $ = function (id) { return document.getElementById(id); };
-        var applyBtn = $("applyBtn");
-        function fillSelect(sel, min, max, unit) {
-          var html = "";
-          for (var v = min; v <= max; v++) html += '<option value="' + v + '">' + v + unit + "</option>";
-          sel.innerHTML = html;
-        }
-        fillSelect($("dropSel"), 1, 5, "個");
-        fillSelect($("lineSel"), 3, 9, "個");
-        fillSelect($("typeSel"), 3, 7, "種類");
-        fillSelect($("startSel"), 1, 20, "個");
 
-        function press(btn, on) { btn.setAttribute("aria-pressed", on ? "true" : "false"); }
-        function markApplyNeeded() { applyBtn.classList.add("attention"); }
-        function clearApplyNeeded() { applyBtn.classList.remove("attention"); }
-
-        function refreshSettingsUI() {
-          press($("clearStdBtn"), S.clearMode === "standard");
-          press($("clearChainBtn"), S.clearMode === "chain");
-          press($("clearAlwaysBtn"), S.clearMode === "always");
-          press($("typesScoreBtn"), S.typesMode === "score");
-          press($("typesFixedBtn"), S.typesMode === "fixed");
-          $("typeSelWrap").hidden = S.typesMode !== "fixed";
-          press($("size7Btn"), S.size === 7);
-          press($("size9Btn"), S.size === 9);
-          $("dropSel").value = String(S.drop);
-          $("lineSel").value = String(S.line);
-          $("typeSel").value = String(S.types);
-          $("startSel").value = String(S.start);
-          $("nowClear").textContent = "現在：" + (S.clearMode === "standard" ? "標準（消えたら降らない）" : S.clearMode === "chain" ? "連続移動" : "いつも落下");
-          $("nowDrop").textContent = "現在：" + S.drop + "個";
-          $("nowLine").textContent = "現在：" + S.line + "個";
-          $("nowTypes").textContent = S.typesMode === "score" ? "現在：得点で増える（開始4種）" : "現在：固定 " + S.types + "種類";
-          $("nowStart").textContent = "現在：" + S.start + "個";
-          $("nowSize").textContent = "現在：" + S.size + "×" + S.size;
-          /* rules text follows the live settings (movement always needs a path) */
-          $("ruleDropText").innerHTML = "移動でラインがそろわなかったら、<b>新しいフルーツが" + S.drop + "個</b>落ちてきます。";
-          $("ruleLineText").innerHTML = "<b>縦・横・斜め</b>に同じフルーツが<b>" + S.line + "個以上</b>並ぶと消えて得点になります。得点は長さ×（長さ＋1）×5点で、長くつなぐほど1個あたりの点が上がります（5個＝150点、9個＝450点）。";
-          $("ruleTypesText").innerHTML = S.typesMode === "score"
-            ? "フルーツは<b>最初4種類</b>。スコアが<b>3000点・5000点・8000点</b>に達するたび、新しいフルーツが1種類ずつ増えます（最大7種類）。増えた種類は、次に落ちてくるフルーツにもすぐ加わります。"
-            : "フルーツは<b>" + S.types + "種類</b>で固定です（設定で変更できます）。固定で遊んだゲームはランキング対象外です。";
-          $("ruleClearText").textContent =
-            S.clearMode === "standard" ? "移動でそろえたときは、新しいフルーツは落ちてきません。" :
-            S.clearMode === "chain" ? "連続移動モードでは、そろえた手はフルーツが落ちず、続けて移動できます。連続で消すと、その消去分に連続回数倍（2連続目×2、3連続目×3…）がかかります。" :
-            "いつも落下モードでは、そろえた手でも新しいフルーツが落ちてきます。";
-          updateRankUI();
-        }
-
-        function setClearMode(mode) {
-          S.clearMode = mode;
-          chainCount = 0;
-          taintRank(); /* live setting: the running game leaves the defaults */
-          refreshSettingsUI();
-        }
-        function setSize(v) {
-          S.size = v;
-          if (S.line > v) S.line = v;
-          refreshSettingsUI();
-          markApplyNeeded();
-        }
-
-        $("clearStdBtn").addEventListener("click", function () { setClearMode("standard"); });
-        $("clearChainBtn").addEventListener("click", function () { setClearMode("chain"); });
-        $("clearAlwaysBtn").addEventListener("click", function () { setClearMode("always"); });
-        $("typesScoreBtn").addEventListener("click", function () {
-          S.typesMode = "score";
-          refreshSettingsUI();
-          markApplyNeeded();
-        });
-        $("typesFixedBtn").addEventListener("click", function () {
-          S.typesMode = "fixed";
-          refreshSettingsUI();
-          markApplyNeeded();
-        });
-        $("size7Btn").addEventListener("click", function () { setSize(7); });
-        $("size9Btn").addEventListener("click", function () { setSize(9); });
-        $("dropSel").addEventListener("change", function () {
-          S.drop = parseInt(this.value, 10);
-          drawNext();
-          renderStatus();
-          taintRank();
-          refreshSettingsUI();
-        });
-        $("lineSel").addEventListener("change", function () {
-          S.line = parseInt(this.value, 10);
-          taintRank();
-          refreshSettingsUI();
-        });
-        $("typeSel").addEventListener("change", function () {
-          S.types = parseInt(this.value, 10);
-          refreshSettingsUI();
-          markApplyNeeded();
-        });
-        $("startSel").addEventListener("change", function () {
-          S.start = parseInt(this.value, 10);
-          refreshSettingsUI();
-          markApplyNeeded();
-        });
-        applyBtn.addEventListener("click", function () {
-          clearApplyNeeded();
-          newGame();
-          showView("game");
-        });
-        $("defaultsBtn").addEventListener("click", function () {
-          S.clearMode = DEFAULTS.clearMode;
-          S.drop = DEFAULTS.drop;
-          S.line = DEFAULTS.line;
-          S.typesMode = DEFAULTS.typesMode;
-          S.types = DEFAULTS.types;
-          S.start = DEFAULTS.start;
-          chainCount = 0;
-          drawNext();
-          renderStatus();
-          taintRank(); /* the running game was not played under the defaults throughout */
-          setSize(DEFAULTS.size);
-          refreshSettingsUI();
-        });
-
-        /* ---------- separate screens: game / settings / help / ranking ---------- */
+        /* ---------- separate screens: game / help / ranking ---------- */
         function showView(name) {
           $("gameView").hidden = name !== "game";
-          $("settingsView").hidden = name !== "settings";
           $("helpView").hidden = name !== "help";
           $("rankingView").hidden = name !== "ranking";
           if (name === "ranking") renderRanking();
           if (name === "game") fitBoard();
           try { window.scrollTo(0, 0); } catch (e) {}
         }
-        $("settingsBtn").addEventListener("click", function () { showView("settings"); });
         $("helpBtn").addEventListener("click", function () { showView("help"); });
         $("rankingBtn").addEventListener("click", function () { showView("ranking"); });
         $("rankingBackBtn").addEventListener("click", function () { showView("game"); });
@@ -1781,12 +1455,14 @@
           saveRanking([]);
           renderRanking();
         });
-        $("settingsBackBtn").addEventListener("click", function () { showView("game"); });
-        $("closeSettingsBtn").addEventListener("click", function () { showView("game"); });
         $("helpBackBtn").addEventListener("click", function () { showView("game"); });
         $("helpCloseBtn").addEventListener("click", function () { showView("game"); });
-        $("restartBtn").addEventListener("click", function () { clearApplyNeeded(); newGame(); });
-        $("againBtn").addEventListener("click", function () { clearApplyNeeded(); newGame(); });
+        $("restartBtn").addEventListener("click", function () { newGame(); });
+        $("againBtn").addEventListener("click", function () { newGame(); });
+        /* From the game-over dialog straight to the ranking screen. The
+           dialog itself stays as-is behind the ranking view, so coming
+           back returns to it and 「もう一度あそぶ」 is still there. */
+        $("overRankBtn").addEventListener("click", function () { showView("ranking"); });
         var soundBtn = $("soundBtn");
         soundBtn.addEventListener("click", function () {
           soundOn = !soundOn;
@@ -1799,7 +1475,6 @@
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBoard);
 
         buildBoard();
-        refreshSettingsUI();
         newGame();
       })();
     </script>
